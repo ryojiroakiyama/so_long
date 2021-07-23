@@ -1,0 +1,95 @@
+#include "mlx.h"
+
+enum e_point
+{
+	X,
+	Y,
+	POINT_NUM,
+};
+
+typedef struct	s_data {
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_data;
+
+void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
+{
+	char	*dst;
+
+	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
+	*(unsigned int*)dst = color;
+}
+
+void	make_straight_line(t_data *img, int *point1, int *point2)
+{
+	int x;
+	int y;
+
+	my_mlx_pixel_put(img, point1[X], point1[Y], 0x00FF0000);
+	my_mlx_pixel_put(img, point2[X], point2[Y], 0x00FF0000);
+}
+
+int	main(void)
+{
+	void	*mlx;
+	void	*mlx_win;
+	t_data	img;
+	int		points[7][POINT_NUM];
+	int		center[POINT_NUM];
+	int		to_point;
+	int		i;
+//	int		x;
+//	int		mid;
+//	int		y;
+
+	mlx = mlx_init();
+	mlx_win = mlx_new_window(mlx, 500, 500, "Hello world!");
+	img.img = mlx_new_image(mlx, 500, 500);
+	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
+								&img.endian);
+/*
+	x = 100;
+	mid = 150;
+	while (x <= 200)
+	{
+		if (x <= mid)
+			y = (mid - x) * (mid - x) / 5;
+		else
+			y = (x - mid) * (x - mid) / 5;
+		my_mlx_pixel_put(&img, x, y, 0x00FF0000);
+		x++;
+	}*/
+	center[X] = 250;
+	center[Y] = 250;
+	to_point = 100;
+	points[0][X] = center[X] + to_point;
+	points[0][Y] = center[Y];
+	points[1][X] = center[X] + (to_point / 2);
+	points[1][Y] = center[Y] - to_point;
+	points[2][X] = center[X] - (to_point / 2);
+	points[2][Y] = center[Y] - to_point;
+	points[3][X] = center[X] - to_point;
+	points[3][Y] = center[Y];
+	points[4][X] = center[X] - (to_point / 2);
+	points[4][Y] = center[Y] + to_point;
+	points[5][X] = center[X] + (to_point / 2);
+	points[5][Y] = center[Y] + to_point;
+	points[6][X] = -1;
+	points[6][Y] = -1;
+	i = 0;
+	while (1)
+	{
+		if (points[i + 1][X] == -1)
+		{
+			make_straight_line(&img, points[i], points[0]);
+			break ;
+		}
+		make_straight_line(&img, points[i], points[i + 1]);
+		i++;
+	}
+	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
+	mlx_loop(mlx);
+}
