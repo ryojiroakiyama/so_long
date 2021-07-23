@@ -1,4 +1,5 @@
 #include "mlx.h"
+#include <stdio.h>
 
 enum e_point
 {
@@ -23,13 +24,23 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-void	make_straight_line(t_data *img, int *point1, int *point2)
+void	make_straight_line(t_data *img, int *src_point, int *dst_point)
 {
 	int x;
 	int y;
+	int	a;
 
-	my_mlx_pixel_put(img, point1[X], point1[Y], 0x00FF0000);
-	my_mlx_pixel_put(img, point2[X], point2[Y], 0x00FF0000);
+	a = (dst_point[Y] - src_point[Y]) / (dst_point[X] - src_point[X]);
+	x = src_point[X];
+	while (x != dst_point[X])
+	{
+		y = a * (x - src_point[X]) + src_point[Y];
+		my_mlx_pixel_put(img, x, y, 0x00FF0000);
+		if (src_point[X] < dst_point[X])
+			x++;
+		else
+			x--;
+	}
 }
 
 int	main(void)
