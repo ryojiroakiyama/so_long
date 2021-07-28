@@ -1,7 +1,5 @@
 #include "mlx.h"
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #define LEFT 65361
 #define UP 65362
@@ -23,15 +21,10 @@ typedef struct	s_data {
 	int		move_y;
 }				t_data;
 
-int	close_win(t_data *data)
+int	close_win(int keycode, t_data *data)
 {
-	mlx_destroy_image(data->mlx, data->base_img);
-	mlx_destroy_image(data->mlx, data->move_img);
 	mlx_destroy_window(data->mlx, data->mlx_win);
-	mlx_destroy_display(data->mlx);
-	free(data->mlx);
-	exit(0);
-	return (0);
+	return (keycode);
 }
 
 void	create_map(t_data *data)
@@ -39,7 +32,6 @@ void	create_map(t_data *data)
 	int		x_cnt = 0;
 	int		y_cnt = 0;
 
-//	mlx_clear_window(data->mlx, data->mlx_win);
 	while (y_cnt < data->hei_cnt)
 	{
 		x_cnt = 0;
@@ -64,8 +56,6 @@ int	key_hook(int keycode, t_data *data)
 		data->move_y--;
 	if (keycode == DOWN && data->move_y < data->hei_cnt - 1)
 		data->move_y++;
-	if (keycode == 65307)
-		close_win(data);
 	create_map(data);
 	return (keycode);
 }
@@ -86,6 +76,6 @@ int	main(void)
 	data.mlx_win = mlx_new_window(data.mlx, data.base_width * data.wid_cnt, data.base_height * data.hei_cnt, "Hello world!");
 	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
-	mlx_hook(data.mlx_win, 33, 1L << 17, close_win, &data);
+	mlx_hook(data.mlx_win, 33, 1 << 17, close, &data);
 	mlx_loop(data.mlx);
 }
