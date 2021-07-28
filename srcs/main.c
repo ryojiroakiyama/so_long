@@ -113,21 +113,34 @@ void	create_map(t_data *data)
 			x * data->img_width, y * data->img_height);
 		}
 	}
-	mlx_put_image_to_window\
-	(data->mlx, data->mlx_win, data->img[PLAYER], \
-	data->player[X] * data->img_width, data->player[Y] * data->img_height);
 }
 
 int	key_hook(int keycode, t_data *data)
 {
 	if (keycode == LEFT && 0 < data->player[X])
+	{
+		(data->map)[data->player[X]][data->player[Y]] = EMPTY;
 		data->player[X]--;
+		(data->map)[data->player[X]][data->player[Y]] = PLAYER;
+	}
 	if (keycode == RIGHT && data->player[X] < data->w_cnt - 1)
+	{
+		(data->map)[data->player[X]][data->player[Y]] = EMPTY;
 		data->player[X]++;
+		(data->map)[data->player[X]][data->player[Y]] = PLAYER;
+	}
 	if (keycode == UP && 0 < data->player[Y])
+	{
+		(data->map)[data->player[X]][data->player[Y]] = EMPTY;
 		data->player[Y]--;
+		(data->map)[data->player[X]][data->player[Y]] = PLAYER;
+	}
 	if (keycode == DOWN && data->player[Y] < data->h_cnt - 1)
+	{
+		(data->map)[data->player[X]][data->player[Y]] = EMPTY;
 		data->player[Y]++;
+		(data->map)[data->player[X]][data->player[Y]] = PLAYER;
+	}
 	if (keycode == ESC)
 		close_win(data);
 	create_map(data);
@@ -154,6 +167,9 @@ void	make_2d_array(t_data *data)
 		y = -1;
 		while (++y < data->h_cnt)
 			(data->map)[x][y] = EMPTY;
+		data->player[X] = 0;
+		data->player[Y] = 0;
+		(data->map)[data->player[X]][data->player[Y]] = PLAYER;
 	}
 }
 
@@ -163,8 +179,6 @@ int	main(void)
 
 	data.w_cnt = 5;
 	data.h_cnt = 5;
-	data.player[X] = 0;
-	data.player[Y] = 0;
 	make_2d_array(&data);
 	initialize_data(&data);
 	create_map(&data);
