@@ -35,7 +35,6 @@ typedef struct	s_data {
 	int		w_cnt;
 	int		h_cnt;
 	int		player[COOR_NUM];
-	int		coll[COOR_NUM];
 	int		coll_num;
 	int		**map;
 }				t_data;
@@ -65,7 +64,7 @@ void	free_2d_array(int **array, int until)
 	free(array);
 }
 
-void	destroy_img(t_data *data)
+void	destroy_all_images(t_data *data)
 {
 	int i;
 
@@ -91,9 +90,9 @@ void	put_2d_array(t_data *data)
 int	close_win(t_data *data)
 {
 	mlx_destroy_window(data->mlx, data->mlx_win);
-	destroy_img(data);
+	destroy_all_images(data);
 	mlx_destroy_display(data->mlx);
-	free_2d_array(data->map, data->h_cnt);
+	free_2d_array(data->map, data->w_cnt);
 	free(data->mlx);
 	exit(0);
 	return (0);
@@ -178,11 +177,13 @@ void	make_2d_array(t_data *data)
 	}
 	data->player[X] = 0;
 	data->player[Y] = 0;
-	data->coll[X] = 4;
-	data->coll[Y] = 4;
 	data->map[data->player[X]][data->player[Y]] = PLAYER;
-	data->map[data->coll[X]][data->coll[Y]] = COLL;
+	data->map[3][3] = COLL;
+	data->map[5][5] = COLL;
+	data->map[8][8] = COLL;
 	data->map[7][7] = WALL;
+	data->map[9][7] = WALL;
+	data->map[4][7] = EXIT;
 }
 
 int	main(void)
