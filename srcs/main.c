@@ -9,14 +9,14 @@
 #define DOWN 65364
 #define ESC 65307
 
-enum	e_piece_of_map
+enum	e_panel_of_map
 {
 	EMPTY,
 	WALL,
 	COLL,
 	EXIT,
 	PLAYER,
-	PIECE_NUM,
+	PANEL_NUM,
 };
 
 enum	e_coordinates
@@ -29,12 +29,10 @@ enum	e_coordinates
 typedef struct	s_data {
 	void	*mlx;
 	void	*mlx_win;
-	void	*img[PIECE_NUM];
-	int		img_width;
-	int		img_height;
-	int		w_cnt;
-	int		h_cnt;
-	int		player[COOR_NUM];
+	void	*img[PANEL_NUM];
+	int		img_length[COOR_NUM];
+	int		panel_cnt[COOR_NUM];
+	int		p_posit[COOR_NUM];
 	int		coll_num;
 	int		**map;
 }				t_data;
@@ -43,17 +41,17 @@ void	initialize_data(t_data *data)
 {
 	data->mlx = mlx_init();
 	data->img[EMPTY] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/forest.xpm", &(data->img_width), &(data->img_height));
+		(data->mlx, "./xpm/forest.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[WALL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/tree.xpm", &(data->img_width), &(data->img_height));
+		(data->mlx, "./xpm/tree.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[COLL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/old-man.xpm", &(data->img_width), &(data->img_height));
+		(data->mlx, "./xpm/old-man.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[EXIT] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/escape.xpm", &(data->img_width), &(data->img_height));
+		(data->mlx, "./xpm/escape.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[PLAYER] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/monster.xpm", &(data->img_width), &(data->img_height));
+		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
-		data->w_cnt * data->img_width, data->h_cnt * data->img_height, "Hello world!");
+		data->panel_cnt[X] * data->img_length[X], data->panel_cnt[Y] * data->img_length[Y], "Hello world!");
 	data->coll_num = 0;
 }
 
@@ -69,7 +67,7 @@ void	destroy_all_images(t_data *data)
 	int i;
 
 	i = -1;
-	while (++i < PIECE_NUM)
+	while (++i < PANEL_NUM)
 		mlx_destroy_image(data->mlx, data->img[i]);
 }
 
@@ -79,10 +77,10 @@ void	put_2d_array(t_data *data)
 	int y;
 
 	x = -1;
-	while (++x < data->w_cnt)
+	while (++x < data->panel_cnt[X])
 	{
 		y = -1;
-		while (++y < data->h_cnt)
+		while (++y < data->panel_cnt[Y])
 			printf("(%d, %d)->%d\n", x, y, data->map[x][y]);
 	}
 }
@@ -92,7 +90,7 @@ int	close_win(t_data *data)
 	mlx_destroy_window(data->mlx, data->mlx_win);
 	destroy_all_images(data);
 	mlx_destroy_display(data->mlx);
-	free_2d_array(data->map, data->w_cnt);
+	free_2d_array(data->map, data->panel_cnt[X]);
 	free(data->mlx);
 	exit(0);
 	return (0);
@@ -105,21 +103,21 @@ void	create_map(t_data *data)
 
 //	mlx_clear_window(data->mlx, data->mlx_win);
 	x = -1;
-	while (++x < data->w_cnt)
+	while (++x < data->panel_cnt[X])
 	{
 		y = -1;
-		while (++y < data->h_cnt)
+		while (++y < data->panel_cnt[Y])
 		{
 			mlx_put_image_to_window\
 			(data->mlx, data->mlx_win, data->img[data->map[x][y]], \
-			x * data->img_width, y * data->img_height);
+			x * data->img_length[X], y * data->img_length[Y]);
 		}
 	}
 }
 
 void	move_next_or_not(int next_x, int next_y, t_data *data)
 {
-	if (next_x < 0 || data->w_cnt - 1 < next_x || next_y < 0 || data->h_cnt - 1 < next_y)
+	if (next_x < 0 || data->panel_cnt[X] - 1 < next_x || next_y < 0 || data->panel_cnt[Y] - 1 < next_y)
 		return ;
 	if (data->map[next_x][next_y] == WALL)
 		return ;
@@ -132,22 +130,22 @@ void	move_next_or_not(int next_x, int next_y, t_data *data)
 	}
 	if (data->map[next_x][next_y] == COLL)
 		data->coll_num++;
-	data->map[data->player[X]][data->player[Y]] = EMPTY;
+	data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
 	data->map[next_x][next_y] = PLAYER;
-	data->player[X] = next_x;
-	data->player[Y] = next_y;
+	data->p_posit[X] = next_x;
+	data->p_posit[Y] = next_y;
 }
 
 int	key_hook(int keycode, t_data *data)
 {
 	if (keycode == LEFT)
-		move_next_or_not(data->player[X] - 1, data->player[Y], data);
+		move_next_or_not(data->p_posit[X] - 1, data->p_posit[Y], data);
 	if (keycode == RIGHT)
-		move_next_or_not(data->player[X] + 1, data->player[Y], data);
+		move_next_or_not(data->p_posit[X] + 1, data->p_posit[Y], data);
 	if (keycode == UP)
-		move_next_or_not(data->player[X], data->player[Y] - 1, data);
+		move_next_or_not(data->p_posit[X], data->p_posit[Y] - 1, data);
 	if (keycode == DOWN)
-		move_next_or_not(data->player[X], data->player[Y] + 1, data);
+		move_next_or_not(data->p_posit[X], data->p_posit[Y] + 1, data);
 	if (keycode == ESC)
 		close_win(data);
 	create_map(data);
@@ -159,25 +157,25 @@ void	make_2d_array(t_data *data)
 	int	x;
 	int	y;
 
-	data->map = (int **)malloc(sizeof(int *) * data->w_cnt);
+	data->map = (int **)malloc(sizeof(int *) * data->panel_cnt[X]);
 	if (!data->map)
 		exit(1);
 	x = -1;
-	while (++x < data->w_cnt)
+	while (++x < data->panel_cnt[X])
 	{
-		data->map[x] = (int *)malloc(sizeof(int) * data->h_cnt);
+		data->map[x] = (int *)malloc(sizeof(int) * data->panel_cnt[Y]);
 		if (!data->map[x])
 		{
 			free_2d_array(data->map, x);
 			exit (1);
 		}
 		y = -1;
-		while (++y < data->h_cnt)
+		while (++y < data->panel_cnt[Y])
 			data->map[x][y] = EMPTY;
 	}
-	data->player[X] = 0;
-	data->player[Y] = 0;
-	data->map[data->player[X]][data->player[Y]] = PLAYER;
+	data->p_posit[X] = 0;
+	data->p_posit[Y] = 0;
+	data->map[data->p_posit[X]][data->p_posit[Y]] = PLAYER;
 	data->map[3][3] = COLL;
 	data->map[5][5] = COLL;
 	data->map[8][8] = COLL;
@@ -190,8 +188,8 @@ int	main(void)
 {
 	t_data	data;
 
-	data.w_cnt = 10;
-	data.h_cnt = 10;
+	data.panel_cnt[X] = 10;
+	data.panel_cnt[Y] = 10;
 	make_2d_array(&data);
 	initialize_data(&data);
 	create_map(&data);
