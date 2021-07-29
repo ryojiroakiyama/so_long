@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LEFT 65361
-#define UP 65362
-#define RIGHT 65363
-#define DOWN 65364
+#define LEFT 97
+#define UP 119
+#define RIGHT 100
+#define DOWN 115
 #define ESC 65307
 
 enum	e_panel_of_map
@@ -67,6 +67,21 @@ void	free_2d_array(int **array, int until)
 	while (--until >= 0)
 		free(array[until]);
 	free(array);
+}
+
+void	ft_exit(int fd, char *line, t_data *data, int until)
+{
+	int status;
+
+	free(line);
+	status == 1;
+	while (status == 1)
+	{
+		status = get_next_line(0, &line);
+		free(line);
+	}
+	free_2d_array(data->map, until);
+	exit(1);
 }
 
 void	destroy_all_images(t_data *data)
