@@ -26,6 +26,13 @@ enum	e_coordinates
 	COOR_NUM,
 };
 
+enum	e_collectibles
+{
+	NOW,
+	MAX,
+	COLL_NUM,
+};
+
 typedef struct	s_data {
 	void	*mlx;
 	void	*mlx_win;
@@ -33,7 +40,7 @@ typedef struct	s_data {
 	int		img_length[COOR_NUM];
 	int		panel_cnt[COOR_NUM];
 	int		p_posit[COOR_NUM];
-	int		coll_num;
+	int		coll_cnt[COLL_NUM];
 	int		**map;
 }				t_data;
 
@@ -52,7 +59,7 @@ void	initialize_data(t_data *data)
 		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_cnt[X] * data->img_length[X], data->panel_cnt[Y] * data->img_length[Y], "Hello world!");
-	data->coll_num = 0;
+	data->coll_cnt[NOW] = 0;
 }
 
 void	free_2d_array(int **array, int until)
@@ -123,13 +130,13 @@ void	move_next_or_not(int next_x, int next_y, t_data *data)
 		return ;
 	if (data->map[next_x][next_y] == EXIT)
 	{
-		if (2 < data->coll_num)
+		if (data->coll_cnt[NOW] == data->coll_cnt[MAX])
 			close_win(data);
 		else
 			return ;
 	}
 	if (data->map[next_x][next_y] == COLL)
-		data->coll_num++;
+		data->coll_cnt[NOW]++;
 	data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
 	data->map[next_x][next_y] = PLAYER;
 	data->p_posit[X] = next_x;
@@ -157,6 +164,8 @@ void	make_2d_array(t_data *data)
 	int	x;
 	int	y;
 
+	data->panel_cnt[X] = 10;
+	data->panel_cnt[Y] = 10;
 	data->map = (int **)malloc(sizeof(int *) * data->panel_cnt[X]);
 	if (!data->map)
 		exit(1);
@@ -182,14 +191,13 @@ void	make_2d_array(t_data *data)
 	data->map[7][7] = WALL;
 	data->map[9][7] = WALL;
 	data->map[4][7] = EXIT;
+	data->coll_cnt[MAX] = 3;
 }
 
 int	main(void)
 {
 	t_data	data;
 
-	data.panel_cnt[X] = 10;
-	data.panel_cnt[Y] = 10;
 	make_2d_array(&data);
 	initialize_data(&data);
 	create_map(&data);
