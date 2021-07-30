@@ -2,11 +2,11 @@ NAME = so_long
 
 #NAME_BONUS = so_long
 
-SRCS = ./srcs/main.c
+SRCS = ./srcs/main.c ./srcs_gnl/get_next_line.c ./srcs_gnl/get_next_line_utils.c
 
 #SRCS_BONUS = ./srcs_bonus/main_bonus.c
 
-#HEADER = ./includes
+HEADER = ./includes
 
 #LIBFT_DIR = ./libft
 
@@ -18,7 +18,7 @@ OBJS = ${SRCS:.c=.o}
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} #-I ${HEADER} #-I ${LIBFT_DIR}
+CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} -I ${HEADER} #-I ${LIBFT_DIR}
 
 RM = rm -f
 
@@ -27,7 +27,7 @@ all:
 	@${MAKE} -C ${MLX_DIR}
 	@make ${NAME}
 
-${NAME}: ${OBJS} ${MLX_DIR} #${HEADER} #${LIBFT_DIR}
+${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} #${LIBFT_DIR}
 	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 #-L ${LIBFT_DIR} -lft
 
 run: all

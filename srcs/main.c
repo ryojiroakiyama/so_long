@@ -1,48 +1,4 @@
-#include "mlx.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#define LEFT 97
-#define UP 119
-#define RIGHT 100
-#define DOWN 115
-#define ESC 65307
-
-enum	e_panel_of_map
-{
-	EMPTY,
-	WALL,
-	COLL,
-	EXIT,
-	PLAYER,
-	PANEL_NUM,
-};
-
-enum	e_coordinates
-{
-	X,
-	Y,
-	COOR_NUM,
-};
-
-enum	e_collectibles
-{
-	NOW,
-	MAX,
-	COLL_NUM,
-};
-
-typedef struct	s_data {
-	void	*mlx;
-	void	*mlx_win;
-	void	*img[PANEL_NUM];
-	int		img_length[COOR_NUM];
-	int		panel_cnt[COOR_NUM];
-	int		p_posit[COOR_NUM];
-	int		coll_cnt[COLL_NUM];
-	int		**map;
-}				t_data;
+#include "so_long.h"
 
 void	initialize_data(t_data *data)
 {
@@ -64,26 +20,20 @@ void	initialize_data(t_data *data)
 
 void	free_2d_array(int **array, int until)
 {
-	while (--until >= 0)
-		free(array[until]);
-	free(array);
-}
-
-void	ft_exit(int fd, char *line, t_data *data, int until)
-{
-	int status;
-
-	free(line);
-	status == 1;
-	while (status == 1)
+	if (array)
 	{
-		status = get_next_line(0, &line);
-		free(line);
+		while (--until >= 0)
+			free(array[until]);
+		free(array);
 	}
-	free_2d_array(data->map, until);
+}
+/*
+void	ft_exit(int **map, int until)
+{
+	free_2d_array(map, until);
 	exit(1);
 }
-
+*/
 void	destroy_all_images(t_data *data)
 {
 	int i;
@@ -174,6 +124,55 @@ int	key_hook(int keycode, t_data *data)
 	return (keycode);
 }
 
+int	check_map(int read_cnt, char *line, t_data *data)
+{
+	int	len;
+
+	len = 0;
+	while (line && line[len])
+	{
+		if (line[len] == '0' || line[len] == '1' || line[len] == 'C' || \
+			line[len] == 'E' || line[len] == 'P')
+			len++;
+		else
+			return (1);
+	}
+	if (read_cnt == 1)
+		data->panel_cnt[X] = len;
+	else if (len != data->panel_cnt[X])
+		return (1);
+	return (0);
+}
+
+void	read_map(char *map_path, t_data *data)
+{
+	int		fd;
+	int		status;
+	char	*line;
+	int		error_cnt;
+	int		read_cnt;
+
+	fd = open(map_path, O_RDONLY);
+	if (fd < 0)
+		exit(1);
+	status = 1;
+	error_cnt = 0;
+	read_cnt = 0;
+	while (status == 1)
+	{
+		status = get_next_line(fd, &line);
+		read_cnt++;
+		if (status < 0)
+			exit(1);
+		if (check_map(read_cnt, line, data))
+			error_cnt++;
+		free(line);
+	}
+	if (close(fd) < 0)
+		exit(1);
+	data->panel_cnt[Y] = read_cnt;
+}
+
 void	make_2d_array(t_data *data)
 {
 	int	x;
@@ -209,14 +208,20 @@ void	make_2d_array(t_data *data)
 	data->coll_cnt[MAX] = 3;
 }
 
-int	main(void)
+int	main(int ac, char **av)
 {
 	t_data	data;
 
-	make_2d_array(&data);
+	if (ac != 2)
+		exit(1);
+	read_map(av[1], &data);
+	printf("data.panel_cnt[X]:%d\n", data.panel_cnt[X]);
+	printf("data.panel_cnt[Y]:%d\n", data.panel_cnt[Y]);
+/*	make_2d_array(&data);
 	initialize_data(&data);
 	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 33, 1L << 17, close_win, &data);
 	mlx_loop(data.mlx);
+*/	return (0);
 }
