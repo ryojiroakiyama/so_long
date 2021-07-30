@@ -24,6 +24,7 @@ void	init_mlx_data(t_data *data)
 		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_num[X] * data->img_length[X], data->panel_num[Y] * data->img_length[Y], "Hello world!");
+	data->move_cnt = 0;
 }
 
 void	free_2d_array(int **array, int until)
@@ -45,21 +46,6 @@ void	destroy_all_images(t_data *data)
 		mlx_destroy_image(data->mlx, data->img[i]);
 }
 
-void	put_2d_array(t_data *data)
-{
-	int	x;
-	int y;
-
-	y = -1;
-	while (++y < data->panel_num[Y])
-	{
-		x = -1;
-		while (++x < data->panel_num[X])
-			printf("%d", data->map[x][y]);
-		printf("\n");
-	}
-}
-
 int	close_win(t_data *data)
 {
 	mlx_destroy_window(data->mlx, data->mlx_win);
@@ -69,6 +55,15 @@ int	close_win(t_data *data)
 	free(data->mlx);
 	exit(0);
 	return (0);
+}
+
+void	print_info(t_data *data)
+{
+	ft_putstr_fd("number of moves : ", 1);
+	ft_putnbr_fd(data->move_cnt, 1);
+	ft_putstr_fd("\nold men surviving : ", 1);
+	ft_putnbr_fd(data->panel_cnt[COLL], 1);
+	ft_putstr_fd("\n", 1);
 }
 
 void	create_map(t_data *data)
@@ -87,12 +82,11 @@ void	create_map(t_data *data)
 			x * data->img_length[X], y * data->img_length[Y]);
 		}
 	}
+	print_info(data);
 }
 
 void	move_next_or_not(int next_x, int next_y, t_data *data)
 {
-	if (next_x < 0 || data->panel_num[X] - 1 < next_x || next_y < 0 || data->panel_num[Y] - 1 < next_y)
-		return ;
 	if (data->map[next_x][next_y] == WALL)
 		return ;
 	if (data->map[next_x][next_y] == EXIT)
@@ -108,6 +102,7 @@ void	move_next_or_not(int next_x, int next_y, t_data *data)
 	data->map[next_x][next_y] = PLAYER;
 	data->p_posit[X] = next_x;
 	data->p_posit[Y] = next_y;
+	data->move_cnt++;
 }
 
 int	key_hook(int keycode, t_data *data)
@@ -162,7 +157,7 @@ int	read_map(char *map_path, t_data *data)
 	return (error_cnt || data->panel_num[X] == 0 || data->panel_num[Y] == 0);
 }
 
-int	**create_2d_array(int size1, int size2)
+int	**malloc_2d_array(int size1, int size2)
 {
 	int cnt;
 	int **array;
@@ -206,7 +201,7 @@ void	set_map(char *map_path, t_data *data)
 	int		fd;
 	char	*line;
 
-	data->map = create_2d_array(data->panel_num[X], data->panel_num[Y]);
+	data->map = malloc_2d_array(data->panel_num[X], data->panel_num[Y]);
 	if (!(data->map))
 		exit(1);
 	fd = exit_or_not(open(map_path, O_RDONLY));
@@ -219,6 +214,7 @@ void	set_map(char *map_path, t_data *data)
 			data->map[x][y] = is_panel(line[x]);
 		free(line);
 	}
+	exit_or_not(close(fd));
 }
 
 int		check_map(t_data *data)
@@ -249,41 +245,6 @@ int		check_map(t_data *data)
 	return (data->panel_cnt[COLL] == 0 || data->panel_cnt[EXIT] == 0 || data->panel_cnt[PLAYER] != 1);
 }
 
-void	make_2d_array(t_data *data)
-{
-	int	x;
-	int	y;
-
-	data->panel_num[X] = 10;
-	data->panel_num[Y] = 10;
-	data->map = (int **)malloc(sizeof(int *) * data->panel_num[X]);
-	if (!data->map)
-		exit(1);
-	x = -1;
-	while (++x < data->panel_num[X])
-	{
-		data->map[x] = (int *)malloc(sizeof(int) * data->panel_num[Y]);
-		if (!data->map[x])
-		{
-			free_2d_array(data->map, x);
-			exit (1);
-		}
-		y = -1;
-		while (++y < data->panel_num[Y])
-			data->map[x][y] = EMPTY;
-	}
-	data->p_posit[X] = 0;
-	data->p_posit[Y] = 0;
-	data->map[data->p_posit[X]][data->p_posit[Y]] = PLAYER;
-	data->map[3][3] = COLL;
-	data->map[5][5] = COLL;
-	data->map[8][8] = COLL;
-	data->map[7][7] = WALL;
-	data->map[9][7] = WALL;
-	data->map[4][7] = EXIT;
-	data->panel_cnt[COLL] = 3;
-}
-
 int	main(int ac, char **av)
 {
 	t_data	data;
@@ -300,7 +261,6 @@ int	main(int ac, char **av)
 		free_2d_array(data.map, data.panel_num[X]);
 		exit(1);
 	}
-//	make_2d_array(&data);
 	init_mlx_data(&data);
 	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
