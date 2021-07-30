@@ -34,21 +34,14 @@ enum	e_coordinates
 	COOR_NUM,
 };
 
-enum	e_collectibles
-{
-	NOW,
-	MAX,
-	COLL_NUM,
-};
-
 typedef struct	s_data {
 	void	*mlx;
 	void	*mlx_win;
 	void	*img[PANEL_NUM];
 	int		img_length[COOR_NUM];
-	int		panel_cnt[COOR_NUM];
+	int		panel_num[COOR_NUM];
+	int		panel_cnt[PANEL_NUM];
 	int		p_posit[COOR_NUM];
-	int		coll_cnt[COLL_NUM];
 	int		**map;
 }				t_data;
 

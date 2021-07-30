@@ -1,14 +1,12 @@
 #include "so_long.h"
 
-void	init_map_data(t_data *data)
+void	init_array_zero(int *array, int size)
 {
-	data->panel_cnt[X] = 0;
-	data->panel_cnt[Y] = 0;
-	data->p_posit[X] = 0;
-	data->p_posit[Y] = 0;
-	data->coll_cnt[NOW] = 0;
-	data->coll_cnt[MAX] = 0;
-	data->map = NULL;
+	int i;
+
+	i = -1;
+	while (++i < size)
+		array[i] = 0;
 }
 
 void	init_mlx_data(t_data *data)
@@ -25,7 +23,7 @@ void	init_mlx_data(t_data *data)
 	data->img[PLAYER] = mlx_xpm_file_to_image\
 		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
-		data->panel_cnt[X] * data->img_length[X], data->panel_cnt[Y] * data->img_length[Y], "Hello world!");
+		data->panel_num[X] * data->img_length[X], data->panel_num[Y] * data->img_length[Y], "Hello world!");
 }
 
 void	free_2d_array(int **array, int until)
@@ -52,12 +50,13 @@ void	put_2d_array(t_data *data)
 	int	x;
 	int y;
 
-	x = -1;
-	while (++x < data->panel_cnt[X])
+	y = -1;
+	while (++y < data->panel_num[Y])
 	{
-		y = -1;
-		while (++y < data->panel_cnt[Y])
-			printf("(%d, %d)->%d\n", x, y, data->map[x][y]);
+		x = -1;
+		while (++x < data->panel_num[X])
+			printf("%d", data->map[x][y]);
+		printf("\n");
 	}
 }
 
@@ -66,7 +65,7 @@ int	close_win(t_data *data)
 	mlx_destroy_window(data->mlx, data->mlx_win);
 	destroy_all_images(data);
 	mlx_destroy_display(data->mlx);
-	free_2d_array(data->map, data->panel_cnt[X]);
+	free_2d_array(data->map, data->panel_num[X]);
 	free(data->mlx);
 	exit(0);
 	return (0);
@@ -77,12 +76,11 @@ void	create_map(t_data *data)
 	int	x;
 	int	y;
 
-//	mlx_clear_window(data->mlx, data->mlx_win);
 	x = -1;
-	while (++x < data->panel_cnt[X])
+	while (++x < data->panel_num[X])
 	{
 		y = -1;
-		while (++y < data->panel_cnt[Y])
+		while (++y < data->panel_num[Y])
 		{
 			mlx_put_image_to_window\
 			(data->mlx, data->mlx_win, data->img[data->map[x][y]], \
@@ -93,19 +91,19 @@ void	create_map(t_data *data)
 
 void	move_next_or_not(int next_x, int next_y, t_data *data)
 {
-	if (next_x < 0 || data->panel_cnt[X] - 1 < next_x || next_y < 0 || data->panel_cnt[Y] - 1 < next_y)
+	if (next_x < 0 || data->panel_num[X] - 1 < next_x || next_y < 0 || data->panel_num[Y] - 1 < next_y)
 		return ;
 	if (data->map[next_x][next_y] == WALL)
 		return ;
 	if (data->map[next_x][next_y] == EXIT)
 	{
-		if (data->coll_cnt[NOW] == data->coll_cnt[MAX])
+		if (data->panel_cnt[COLL] == 0)
 			close_win(data);
 		else
 			return ;
 	}
 	if (data->map[next_x][next_y] == COLL)
-		data->coll_cnt[NOW]++;
+		data->panel_cnt[COLL]--;
 	data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
 	data->map[next_x][next_y] = PLAYER;
 	data->p_posit[X] = next_x;
@@ -150,10 +148,10 @@ int	read_map(char *map_path, t_data *data)
 		status = exit_or_not(get_next_line(fd, &line));
 		if (status == 1)
 		{
-			data->panel_cnt[Y]++;
-			if (data->panel_cnt[Y] == 1)
-				data->panel_cnt[X] = ft_strlen(line);
-			else if ((int)ft_strlen(line) != data->panel_cnt[X])
+			data->panel_num[Y]++;
+			if (data->panel_num[Y] == 1)
+				data->panel_num[X] = ft_strlen(line);
+			else if ((int)ft_strlen(line) != data->panel_num[X])
 				error_cnt++;
 		}
 		if (status == 0 && line[0] != '\0')
@@ -161,7 +159,7 @@ int	read_map(char *map_path, t_data *data)
 		free(line);
 	}
 	exit_or_not(close(fd));
-	return (error_cnt);
+	return (error_cnt || data->panel_num[X] == 0 || data->panel_num[Y] == 0);
 }
 
 int	**create_2d_array(int size1, int size2)
@@ -208,19 +206,47 @@ void	set_map(char *map_path, t_data *data)
 	int		fd;
 	char	*line;
 
-	data->map = create_2d_array(data->panel_cnt[X], data->panel_cnt[Y]);
+	data->map = create_2d_array(data->panel_num[X], data->panel_num[Y]);
 	if (!(data->map))
 		exit(1);
 	fd = exit_or_not(open(map_path, O_RDONLY));
 	y = -1;
-	while (++y < data->panel_cnt[Y])
+	while (++y < data->panel_num[Y])
 	{
 		exit_or_not(get_next_line(fd, &line));
 		x = -1;
-		while (++x < data->panel_cnt[X])
+		while (++x < data->panel_num[X])
 			data->map[x][y] = is_panel(line[x]);
 		free(line);
 	}
+}
+
+int		check_map(t_data *data)
+{
+	int	x;
+	int	y;
+
+	x = -1;
+	while (++x < data->panel_num[X])
+	{
+		y = -1;
+		while (++y < data->panel_num[Y])
+		{
+			if ((x == 0 || x == data->panel_num[X] - 1 || y == 0 || y == data->panel_num[Y] - 1) && data->map[x][y] != WALL)
+				return (1);
+			if (data->map[x][y] == COLL)
+				data->panel_cnt[COLL]++;
+			if (data->map[x][y] == EXIT)
+				data->panel_cnt[EXIT]++;
+			if (data->map[x][y] == PLAYER)
+			{
+				data->p_posit[X] = x;
+				data->p_posit[Y] = y;
+				data->panel_cnt[PLAYER]++;
+			}
+		}
+	}
+	return (data->panel_cnt[COLL] == 0 || data->panel_cnt[EXIT] == 0 || data->panel_cnt[PLAYER] != 1);
 }
 
 void	make_2d_array(t_data *data)
@@ -228,22 +254,22 @@ void	make_2d_array(t_data *data)
 	int	x;
 	int	y;
 
-	data->panel_cnt[X] = 10;
-	data->panel_cnt[Y] = 10;
-	data->map = (int **)malloc(sizeof(int *) * data->panel_cnt[X]);
+	data->panel_num[X] = 10;
+	data->panel_num[Y] = 10;
+	data->map = (int **)malloc(sizeof(int *) * data->panel_num[X]);
 	if (!data->map)
 		exit(1);
 	x = -1;
-	while (++x < data->panel_cnt[X])
+	while (++x < data->panel_num[X])
 	{
-		data->map[x] = (int *)malloc(sizeof(int) * data->panel_cnt[Y]);
+		data->map[x] = (int *)malloc(sizeof(int) * data->panel_num[Y]);
 		if (!data->map[x])
 		{
 			free_2d_array(data->map, x);
 			exit (1);
 		}
 		y = -1;
-		while (++y < data->panel_cnt[Y])
+		while (++y < data->panel_num[Y])
 			data->map[x][y] = EMPTY;
 	}
 	data->p_posit[X] = 0;
@@ -255,7 +281,7 @@ void	make_2d_array(t_data *data)
 	data->map[7][7] = WALL;
 	data->map[9][7] = WALL;
 	data->map[4][7] = EXIT;
-	data->coll_cnt[MAX] = 3;
+	data->panel_cnt[COLL] = 3;
 }
 
 int	main(int ac, char **av)
@@ -264,17 +290,21 @@ int	main(int ac, char **av)
 
 	if (ac != 2)
 		exit(1);
-	init_map_data(&data);
-	if (read_map(av[1], &data) || !(data.panel_cnt[X]) || !(data.panel_cnt[Y]))
+	init_array_zero(data.panel_num, COOR_NUM);
+	init_array_zero(data.panel_cnt, PANEL_NUM);
+	if (read_map(av[1], &data))
 		exit(1);
 	set_map(av[1], &data);
-	put_2d_array(&data);
-	free_2d_array(data.map, data.panel_cnt[X]);
-/*	make_2d_array(&data);
+	if (check_map(&data))
+	{
+		free_2d_array(data.map, data.panel_num[X]);
+		exit(1);
+	}
+//	make_2d_array(&data);
 	init_mlx_data(&data);
 	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
-	mlx_hook(data.mlx_win, 33, 1L << 17, close_win, &data);
+	mlx_hook(data.mlx_win, 17, 1L << 17, close_win, &data);
 	mlx_loop(data.mlx);
-*/	return (0);
+	return (0);
 }
