@@ -8,7 +8,7 @@ SRCS = ./srcs/main.c ./srcs_gnl/get_next_line.c ./srcs_gnl/get_next_line_utils.c
 
 HEADER = ./includes
 
-#LIBFT_DIR = ./libft
+LIBFT_DIR = ./libft
 
 MLX_DIR = ./minilibx-linux
 
@@ -18,29 +18,29 @@ OBJS = ${SRCS:.c=.o}
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} -I ${HEADER} #-I ${LIBFT_DIR}
+CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} -I ${HEADER} -I ${LIBFT_DIR}
 
 RM = rm -f
 
 all:
-#	${MAKE} -C ${LIBFT_DIR}
+	@${MAKE} -C ${LIBFT_DIR}
 	@${MAKE} -C ${MLX_DIR}
 	@make ${NAME}
 
-${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} #${LIBFT_DIR}
-	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 #-L ${LIBFT_DIR} -lft
+${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
+	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
 
 run: all
 	export DISPLAY=:0
 	./${NAME}
 
 clean:
-#	${MAKE} -C ${LIBFT_DIR} clean
+	${MAKE} -C ${LIBFT_DIR} clean
 	${MAKE} -C ${MLX_DIR} clean
 	${RM} ${OBJS}
 
 fclean: clean
-#	${MAKE} -C ${LIBFT_DIR} fclean
+	${MAKE} -C ${LIBFT_DIR} fclean
 	${RM} ${NAME}
 
 re: fclean all

@@ -1,6 +1,17 @@
 #include "so_long.h"
 
-void	initialize_data(t_data *data)
+void	init_map_data(t_data *data)
+{
+	data->panel_cnt[X] = 0;
+	data->panel_cnt[Y] = 0;
+	data->p_posit[X] = 0;
+	data->p_posit[Y] = 0;
+	data->coll_cnt[NOW] = 0;
+	data->coll_cnt[MAX] = 0;
+	data->map = NULL;
+}
+
+void	init_mlx_data(t_data *data)
 {
 	data->mlx = mlx_init();
 	data->img[EMPTY] = mlx_xpm_file_to_image\
@@ -15,7 +26,6 @@ void	initialize_data(t_data *data)
 		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_cnt[X] * data->img_length[X], data->panel_cnt[Y] * data->img_length[Y], "Hello world!");
-	data->coll_cnt[NOW] = 0;
 }
 
 void	free_2d_array(int **array, int until)
@@ -27,13 +37,7 @@ void	free_2d_array(int **array, int until)
 		free(array);
 	}
 }
-/*
-void	ft_exit(int **map, int until)
-{
-	free_2d_array(map, until);
-	exit(1);
-}
-*/
+
 void	destroy_all_images(t_data *data)
 {
 	int i;
@@ -124,53 +128,99 @@ int	key_hook(int keycode, t_data *data)
 	return (keycode);
 }
 
-int	check_map(int read_cnt, char *line, t_data *data)
+int	exit_or_not(int result)
 {
-	int	len;
-
-	len = 0;
-	while (line && line[len])
-	{
-		if (line[len] == '0' || line[len] == '1' || line[len] == 'C' || \
-			line[len] == 'E' || line[len] == 'P')
-			len++;
-		else
-			return (1);
-	}
-	if (read_cnt == 1)
-		data->panel_cnt[X] = len;
-	else if (len != data->panel_cnt[X])
-		return (1);
-	return (0);
+	if (result < 0)
+		exit(1);
+	return (result);
 }
 
-void	read_map(char *map_path, t_data *data)
+int	read_map(char *map_path, t_data *data)
 {
 	int		fd;
 	int		status;
 	char	*line;
 	int		error_cnt;
-	int		read_cnt;
 
-	fd = open(map_path, O_RDONLY);
-	if (fd < 0)
-		exit(1);
+	fd = exit_or_not(open(map_path, O_RDONLY));
 	status = 1;
 	error_cnt = 0;
-	read_cnt = 0;
-	while (status == 1)
+	while (status)
 	{
-		status = get_next_line(fd, &line);
-		read_cnt++;
-		if (status < 0)
-			exit(1);
-		if (check_map(read_cnt, line, data))
+		status = exit_or_not(get_next_line(fd, &line));
+		if (status == 1)
+		{
+			data->panel_cnt[Y]++;
+			if (data->panel_cnt[Y] == 1)
+				data->panel_cnt[X] = ft_strlen(line);
+			else if ((int)ft_strlen(line) != data->panel_cnt[X])
+				error_cnt++;
+		}
+		if (status == 0 && line[0] != '\0')
 			error_cnt++;
 		free(line);
 	}
-	if (close(fd) < 0)
+	exit_or_not(close(fd));
+	return (error_cnt);
+}
+
+int	**create_2d_array(int size1, int size2)
+{
+	int cnt;
+	int **array;
+
+	array = (int **)malloc(sizeof(int *) * size1);
+	if (!array)
+		return (NULL);
+	cnt = -1;
+	while (++cnt < size1)
+	{
+		array[cnt] = (int *)malloc(sizeof(int) * size2);
+		if (!array)
+		{
+			free_2d_array(array, cnt);
+			return (NULL);
+		}
+	}
+	return (array);
+}
+
+int	is_panel(char c)
+{
+	int		i;
+	char	*panels;
+
+	panels = "01CEP";
+	i = 0;
+	while (i < PANEL_NUM)
+	{
+		if (panels[i] == c)
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
+void	set_map(char *map_path, t_data *data)
+{
+	int		x;
+	int		y;
+	int		fd;
+	char	*line;
+
+	data->map = create_2d_array(data->panel_cnt[X], data->panel_cnt[Y]);
+	if (!(data->map))
 		exit(1);
-	data->panel_cnt[Y] = read_cnt;
+	fd = exit_or_not(open(map_path, O_RDONLY));
+	y = -1;
+	while (++y < data->panel_cnt[Y])
+	{
+		exit_or_not(get_next_line(fd, &line));
+		x = -1;
+		while (++x < data->panel_cnt[X])
+			data->map[x][y] = is_panel(line[x]);
+		free(line);
+	}
 }
 
 void	make_2d_array(t_data *data)
@@ -214,11 +264,14 @@ int	main(int ac, char **av)
 
 	if (ac != 2)
 		exit(1);
-	read_map(av[1], &data);
-	printf("data.panel_cnt[X]:%d\n", data.panel_cnt[X]);
-	printf("data.panel_cnt[Y]:%d\n", data.panel_cnt[Y]);
+	init_map_data(&data);
+	if (read_map(av[1], &data) || !(data.panel_cnt[X]) || !(data.panel_cnt[Y]))
+		exit(1);
+	set_map(av[1], &data);
+	put_2d_array(&data);
+	free_2d_array(data.map, data.panel_cnt[X]);
 /*	make_2d_array(&data);
-	initialize_data(&data);
+	init_mlx_data(&data);
 	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 33, 1L << 17, close_win, &data);

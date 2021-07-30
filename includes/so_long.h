@@ -2,7 +2,7 @@
 # define SO_LONG_H
 
 #include "mlx.h"
-//# include "libft.h"
+# include "libft.h"
 # include "get_next_line.h"
 #include <sys/types.h>
 #include <sys/stat.h>
