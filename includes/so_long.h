@@ -24,6 +24,7 @@ enum	e_panel_of_map
 	COLL,
 	EXIT,
 	PLAYER,
+	ENEMY,
 	PANEL_NUM,
 };
 
@@ -42,7 +43,9 @@ typedef struct	s_data {
 	int		panel_num[COOR_NUM];
 	int		panel_cnt[PANEL_NUM];
 	int		p_posit[COOR_NUM];
+	int		e_posit[COOR_NUM];
 	int		move_cnt;
+	int		enemy_moving;
 	int		**map;
 }				t_data;
 

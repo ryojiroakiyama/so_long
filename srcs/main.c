@@ -9,22 +9,48 @@ void	init_array_zero(int *array, int size)
 		array[i] = 0;
 }
 
+void	set_enemy_posit(t_data *data)
+{
+	int	x;
+	int	y;
+
+	x = -1;
+	while (++x < data->panel_num[X])
+	{
+		y = -1;
+		while (++y < data->panel_num[Y])
+		{
+			if (data->map[x][y] == EMPTY)
+			{
+				data->e_posit[X] = x;
+				data->e_posit[Y] = y;
+				data->map[x][y] = ENEMY;
+				return ;
+			}
+		}
+	}
+}
+
 void	init_mlx_data(t_data *data)
 {
 	data->mlx = mlx_init();
 	data->img[EMPTY] = mlx_xpm_file_to_image\
 		(data->mlx, "./xpm/forest.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[WALL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/tree.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+		(data->mlx, "./xpm/wall.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[COLL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/old-man.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+		(data->mlx, "./xpm/coll1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[EXIT] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/escape.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+		(data->mlx, "./xpm/exit1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->img[PLAYER] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/monster.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+		(data->mlx, "./xpm/player.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[ENEMY] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/enemy1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_num[X] * data->img_length[X], data->panel_num[Y] * data->img_length[Y], "Hello world!");
 	data->move_cnt = 0;
+	set_enemy_posit(data);
+	data->enemy_moving = 0;
 }
 
 void	free_2d_array(int **array, int until)
@@ -59,14 +85,15 @@ int	close_win(t_data *data)
 
 void	print_info(t_data *data)
 {
+	ft_putstr_fd("\033[2J", 1);
 	ft_putstr_fd("number of moves : ", 1);
 	ft_putnbr_fd(data->move_cnt, 1);
-	ft_putstr_fd("\nold men surviving : ", 1);
+	ft_putstr_fd("\ncollectible remaining : ", 1);
 	ft_putnbr_fd(data->panel_cnt[COLL], 1);
 	ft_putstr_fd("\n", 1);
 }
 
-void	create_map(t_data *data)
+void	put_map(t_data *data)
 {
 	int	x;
 	int	y;
@@ -85,7 +112,117 @@ void	create_map(t_data *data)
 	print_info(data);
 }
 
-void	move_next_or_not(int next_x, int next_y, t_data *data)
+int	which_direction(int *src, int *dst)
+{
+	if (src[X] == dst[X])
+	{
+		if (src[Y] < dst[Y])
+			return (DOWN);
+		return (UP);
+	}
+	else if (src[Y] == dst[Y])
+	{
+		if (src[X] < dst[X])
+			return (RIGHT);
+		return (LEFT);
+	}
+	else
+		return (-1);
+}
+
+int	where_posit(int *now, int *next, int direction)
+{
+	if (direction == LEFT)
+	{
+		next[X] = now[X] - 1;
+		next[Y] = now[Y];
+		return (1);
+	}
+	if (direction == RIGHT)
+	{
+		next[X] = now[X] + 1;
+		next[Y] = now[Y];
+		return (1);
+	}
+	if (direction == UP)
+	{
+		next[X] = now[X];
+		next[Y] = now[Y] - 1;
+		return (1);
+	}
+	if (direction == DOWN)
+	{
+		next[X] = now[X];
+		next[Y] = now[Y] + 1;
+		return (1);
+	}
+	return (0);
+}
+
+void	enemy_move_empty(t_data *data)
+{
+	int next[2];
+
+	if (where_posit(data->e_posit, next, data->enemy_moving))
+	{
+		if (data->map[next[X]][next[Y]] == EMPTY)
+		{
+			data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
+			data->map[next[X]][next[Y]] = ENEMY;
+			data->e_posit[X] = next[X];
+			data->e_posit[Y] = next[Y];
+			return ;
+		}
+	}
+}
+
+void	enemy_move_next(int next_x, int next_y, t_data *data, int direction)
+{
+	if (data->map[next_x][next_y] == PLAYER)
+		close_win(data);
+	if (data->map[next_x][next_y] == EMPTY)
+	{
+		data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
+		data->map[next_x][next_y] = ENEMY;
+		data->e_posit[X] = next_x;
+		data->e_posit[Y] = next_y;
+		data->enemy_moving = direction;
+		return ;
+	}
+	enemy_move_empty(data);
+}
+
+void	move_enemy(t_data *data)
+{
+	static int	cnt;
+	int			to_player;
+
+	cnt++;
+	if (cnt == 2000)
+	{
+		to_player = which_direction(data->e_posit, data->p_posit);
+		if (to_player == LEFT)
+			enemy_move_next(data->e_posit[X] - 1, data->e_posit[Y], data, LEFT);
+		else if (to_player == RIGHT)
+			enemy_move_next(data->e_posit[X] + 1, data->e_posit[Y], data, RIGHT);
+		else if (to_player == UP)
+			enemy_move_next(data->e_posit[X], data->e_posit[Y] - 1, data, UP);
+		else if (to_player == DOWN)
+			enemy_move_next(data->e_posit[X], data->e_posit[Y] + 1, data, DOWN);
+		else
+			enemy_move_empty(data);
+		cnt = 0;
+	}
+}
+
+int	loop_func(t_data *data)
+{
+	move_enemy(data);
+	put_map(data);
+	return (0);
+}
+
+void	player_move_next(int next_x, int next_y, t_data *data)
 {
 	if (data->map[next_x][next_y] == WALL)
 		return ;
@@ -96,6 +233,8 @@ void	move_next_or_not(int next_x, int next_y, t_data *data)
 		else
 			return ;
 	}
+	if (data->map[next_x][next_y] == ENEMY)
+		close_win(data);
 	if (data->map[next_x][next_y] == COLL)
 		data->panel_cnt[COLL]--;
 	data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
@@ -108,16 +247,17 @@ void	move_next_or_not(int next_x, int next_y, t_data *data)
 int	key_hook(int keycode, t_data *data)
 {
 	if (keycode == LEFT)
-		move_next_or_not(data->p_posit[X] - 1, data->p_posit[Y], data);
+		player_move_next(data->p_posit[X] - 1, data->p_posit[Y], data);
 	if (keycode == RIGHT)
-		move_next_or_not(data->p_posit[X] + 1, data->p_posit[Y], data);
+		player_move_next(data->p_posit[X] + 1, data->p_posit[Y], data);
 	if (keycode == UP)
-		move_next_or_not(data->p_posit[X], data->p_posit[Y] - 1, data);
+		player_move_next(data->p_posit[X], data->p_posit[Y] - 1, data);
 	if (keycode == DOWN)
-		move_next_or_not(data->p_posit[X], data->p_posit[Y] + 1, data);
+		player_move_next(data->p_posit[X], data->p_posit[Y] + 1, data);
 	if (keycode == ESC)
 		close_win(data);
-	create_map(data);
+//	put_map(data);
+	print_info(data);
 	return (keycode);
 }
 
@@ -262,9 +402,9 @@ int	main(int ac, char **av)
 		exit(1);
 	}
 	init_mlx_data(&data);
-	create_map(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 17, 1L << 17, close_win, &data);
+	mlx_loop_hook(data.mlx, loop_func, &data);
 	mlx_loop(data.mlx);
 	return (0);
 }
