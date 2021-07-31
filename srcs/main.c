@@ -109,7 +109,6 @@ void	put_map(t_data *data)
 			x * data->img_length[X], y * data->img_length[Y]);
 		}
 	}
-	print_info(data);
 }
 
 int	which_direction(int *src, int *dst)
@@ -130,50 +129,61 @@ int	which_direction(int *src, int *dst)
 		return (-1);
 }
 
-int	where_posit(int *now, int *next, int direction)
+int	get_next_posit(int *now, int *next, int direction, t_data *data)
 {
 	if (direction == LEFT)
 	{
 		next[X] = now[X] - 1;
 		next[Y] = now[Y];
-		return (1);
+		return (data->map[next[X]][next[Y]]);
 	}
 	if (direction == RIGHT)
 	{
 		next[X] = now[X] + 1;
 		next[Y] = now[Y];
-		return (1);
+		return (data->map[next[X]][next[Y]]);
 	}
 	if (direction == UP)
 	{
 		next[X] = now[X];
 		next[Y] = now[Y] - 1;
-		return (1);
+		return (data->map[next[X]][next[Y]]);
 	}
 	if (direction == DOWN)
 	{
 		next[X] = now[X];
 		next[Y] = now[Y] + 1;
-		return (1);
+		return (data->map[next[X]][next[Y]]);
 	}
-	return (0);
+	return (-1);
+}
+
+void	move_to_empty(int who, int *next, int direction, t_data *data)
+{
+	if (who == ENEMY)
+	{
+		data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
+		data->map[next[X]][next[Y]] = ENEMY;
+		data->e_posit[X] = next[X];
+		data->e_posit[Y] = next[Y];
+		data->enemy_moving = direction;
+	}
 }
 
 void	enemy_move_empty(t_data *data)
 {
 	int next[2];
 
-	if (where_posit(data->e_posit, next, data->enemy_moving))
-	{
-		if (data->map[next[X]][next[Y]] == EMPTY)
-		{
-			data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
-			data->map[next[X]][next[Y]] = ENEMY;
-			data->e_posit[X] = next[X];
-			data->e_posit[Y] = next[Y];
-			return ;
-		}
-	}
+	if (get_next_posit(data->e_posit, next, data->enemy_moving, data) == EMPTY)
+		move_to_empty(ENEMY, next, ENEMY, data);
+	else if (get_next_posit(data->e_posit, next, UP, data) == EMPTY)
+		move_to_empty(ENEMY, next, UP, data);
+	else if (get_next_posit(data->e_posit, next, RIGHT, data) == EMPTY)
+		move_to_empty(ENEMY, next, RIGHT, data);
+	else if (get_next_posit(data->e_posit, next, DOWN, data) == EMPTY)
+		move_to_empty(ENEMY, next, DOWN, data);
+	else if (get_next_posit(data->e_posit, next, LEFT, data) == EMPTY)
+		move_to_empty(ENEMY, next, LEFT, data);
 }
 
 void	enemy_move_next(int next_x, int next_y, t_data *data, int direction)
@@ -405,6 +415,7 @@ int	main(int ac, char **av)
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 17, 1L << 17, close_win, &data);
 	mlx_loop_hook(data.mlx, loop_func, &data);
+	print_info(&data);
 	mlx_loop(data.mlx);
 	return (0);
 }
