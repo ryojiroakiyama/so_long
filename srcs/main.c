@@ -168,14 +168,22 @@ void	move_to_empty(int who, int *next, int direction, t_data *data)
 		data->e_posit[Y] = next[Y];
 		data->enemy_moving = direction;
 	}
+	if (who == PLAYER)
+	{
+		data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
+		data->map[next[X]][next[Y]] = PLAYER;
+		data->p_posit[X] = next[X];
+		data->p_posit[Y] = next[Y];
+		data->move_cnt++;
+	}
 }
 
-void	enemy_move_empty(t_data *data)
+void	serch_empty(t_data *data)
 {
 	int next[2];
 
 	if (get_next_posit(data->e_posit, next, data->enemy_moving, data) == EMPTY)
-		move_to_empty(ENEMY, next, ENEMY, data);
+		move_to_empty(ENEMY, next, data->enemy_moving, data);
 	else if (get_next_posit(data->e_posit, next, UP, data) == EMPTY)
 		move_to_empty(ENEMY, next, UP, data);
 	else if (get_next_posit(data->e_posit, next, RIGHT, data) == EMPTY)
@@ -186,41 +194,24 @@ void	enemy_move_empty(t_data *data)
 		move_to_empty(ENEMY, next, LEFT, data);
 }
 
-void	enemy_move_next(int next_x, int next_y, t_data *data, int direction)
-{
-	if (data->map[next_x][next_y] == PLAYER)
-		close_win(data);
-	if (data->map[next_x][next_y] == EMPTY)
-	{
-		data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
-		data->map[next_x][next_y] = ENEMY;
-		data->e_posit[X] = next_x;
-		data->e_posit[Y] = next_y;
-		data->enemy_moving = direction;
-		return ;
-	}
-	enemy_move_empty(data);
-}
-
 void	move_enemy(t_data *data)
 {
 	static int	cnt;
-	int			to_player;
+	int			direction;
+	int			panel;
+	int			next[2];
 
 	cnt++;
 	if (cnt == 2000)
 	{
-		to_player = which_direction(data->e_posit, data->p_posit);
-		if (to_player == LEFT)
-			enemy_move_next(data->e_posit[X] - 1, data->e_posit[Y], data, LEFT);
-		else if (to_player == RIGHT)
-			enemy_move_next(data->e_posit[X] + 1, data->e_posit[Y], data, RIGHT);
-		else if (to_player == UP)
-			enemy_move_next(data->e_posit[X], data->e_posit[Y] - 1, data, UP);
-		else if (to_player == DOWN)
-			enemy_move_next(data->e_posit[X], data->e_posit[Y] + 1, data, DOWN);
+		direction = which_direction(data->e_posit, data->p_posit);
+		panel = get_next_posit(data->e_posit, next, direction, data);
+		if (panel == PLAYER)
+			close_win(data);
+		else if (panel == EMPTY)
+			move_to_empty(ENEMY, next, direction, data);
 		else
-			enemy_move_empty(data);
+			serch_empty(data);
 		cnt = 0;
 	}
 }
@@ -232,41 +223,26 @@ int	loop_func(t_data *data)
 	return (0);
 }
 
-void	player_move_next(int next_x, int next_y, t_data *data)
-{
-	if (data->map[next_x][next_y] == WALL)
-		return ;
-	if (data->map[next_x][next_y] == EXIT)
-	{
-		if (data->panel_cnt[COLL] == 0)
-			close_win(data);
-		else
-			return ;
-	}
-	if (data->map[next_x][next_y] == ENEMY)
-		close_win(data);
-	if (data->map[next_x][next_y] == COLL)
-		data->panel_cnt[COLL]--;
-	data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
-	data->map[next_x][next_y] = PLAYER;
-	data->p_posit[X] = next_x;
-	data->p_posit[Y] = next_y;
-	data->move_cnt++;
-}
-
 int	key_hook(int keycode, t_data *data)
 {
-	if (keycode == LEFT)
-		player_move_next(data->p_posit[X] - 1, data->p_posit[Y], data);
-	if (keycode == RIGHT)
-		player_move_next(data->p_posit[X] + 1, data->p_posit[Y], data);
-	if (keycode == UP)
-		player_move_next(data->p_posit[X], data->p_posit[Y] - 1, data);
-	if (keycode == DOWN)
-		player_move_next(data->p_posit[X], data->p_posit[Y] + 1, data);
+	int	next_panel;
+	int	next[2];
+
+	next_panel = get_next_posit(data->p_posit, next, keycode, data);
+	if (next_panel == EXIT && data->panel_cnt[COLL] == 0)
+		close_win(data);
+	if (next_panel == ENEMY)
+		close_win(data);
+	if (next_panel == COLL)
+	{
+		data->map[next[X]][next[Y]] = EMPTY;
+		data->panel_cnt[COLL]--;
+		move_to_empty(PLAYER, next, keycode, data);
+	}
+	if (next_panel == EMPTY)
+		move_to_empty(PLAYER, next, keycode, data);
 	if (keycode == ESC)
 		close_win(data);
-//	put_map(data);
 	print_info(data);
 	return (keycode);
 }
