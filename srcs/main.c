@@ -1,5 +1,17 @@
 #include "so_long.h"
 
+void	ft_exit(char *string, int status)
+{
+	ft_putendl_fd(string, 2);
+	exit(status);
+}
+
+void	perrexit(const char *s, int	status)
+{
+	perror(s);
+	exit(status);
+}
+
 void	init_array_zero(int *array, int size)
 {
 	int i;
@@ -147,6 +159,7 @@ void	init_mlx_data(t_data *data)
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_num[X] * data->img_length[X], data->panel_num[Y] * data->img_length[Y], "Hello world!");
 	data->move_cnt = 0;
+	data->print_string = NULL;
 	set_enemy_posit(data);
 	data->enemy_moving = 0;
 }
@@ -189,21 +202,37 @@ int	close_win(t_data *data)
 	destroy_all_images(data);
 	mlx_destroy_display(data->mlx);
 	free_2d_array(data->map, data->panel_num[X]);
+	free(data->print_string);
 	free(data->mlx);
 	exit(0);
 	return (0);
 }
-
+/*
 void	print_info(t_data *data)
 {
-	ft_putstr_fd("\033[2J", 1);
-	ft_putstr_fd("number of moves : ", 1);
-	ft_putnbr_fd(data->move_cnt, 1);
-	ft_putstr_fd("\ncollectible remaining : ", 1);
-	ft_putnbr_fd(data->panel_cnt[COLL], 1);
-	ft_putstr_fd("\n", 1);
-}
+	char *player_move;
+	char *print_string;
 
+//	ft_putstr_fd("\033[2J", 1);
+//	ft_putstr_fd("number of moves : ", 1);
+//	ft_putnbr_fd(data->move_cnt, 1);
+//	ft_putstr_fd("\ncollectible remaining : ", 1);
+//	ft_putnbr_fd(data->panel_cnt[COLL], 1);
+//	ft_putstr_fd("\n", 1);
+	player_move = ft_itoa(data->move_cnt);
+	if (!player_move)
+		close_win(data);
+	print_string = ft_strjoin("number of moves : ", player_move);
+	if (!print_string)
+	{
+		free(player_move);
+		close_win(data);
+	}
+	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, print_string);
+	free(player_move);
+	free(print_string);
+}
+*/
 void	put_map(t_data *data)
 {
 	int	x;
@@ -222,6 +251,8 @@ void	put_map(t_data *data)
 			x * data->img_length[X], y * data->img_length[Y]);
 		}
 	}
+//	print_info(data);
+	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
 }
 
 int	which_direction(int *src, int *dst)
@@ -356,6 +387,21 @@ int	loop_func(t_data *data)
 	return (0);
 }
 
+void	set_print_string(t_data *data)
+{
+	char *player_move;
+
+	player_move = ft_itoa(data->move_cnt);
+	if (!player_move)
+		close_win(data);
+	free(data->print_string);
+	data->print_string = ft_strjoin("number of moves : ", player_move);
+	free(player_move);
+	if (!data->print_string)
+		close_win(data);
+	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
+}
+
 int	key_hook(int keycode, t_data *data)
 {
 	int	next_panel;
@@ -376,7 +422,7 @@ int	key_hook(int keycode, t_data *data)
 		move_to_empty(PLAYER, next, keycode, data);
 	if (keycode == ESC)
 		close_win(data);
-	print_info(data);
+	set_print_string(data);
 	return (keycode);
 }
 
@@ -509,7 +555,7 @@ int	main(int ac, char **av)
 	t_data	data;
 
 	if (ac != 2)
-		exit(1);
+		ft_exit("invalid number of argument", 1);
 	init_array_zero(data.panel_num, COOR_NUM);
 	init_array_zero(data.panel_cnt, PANEL_NUM);
 	if (read_map(av[1], &data))
@@ -524,7 +570,8 @@ int	main(int ac, char **av)
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 17, 1L << 17, close_win, &data);
 	mlx_loop_hook(data.mlx, loop_func, &data);
-	print_info(&data);
+//	print_info(data);
+	set_print_string(&data);
 	mlx_loop(data.mlx);
 	return (0);
 }

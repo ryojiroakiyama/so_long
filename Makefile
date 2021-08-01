@@ -1,10 +1,10 @@
 NAME = so_long
 
-#NAME_BONUS = so_long
+NAME_BONUS = so_long_bonus
 
 SRCS = ./srcs/main.c ./srcs_gnl/get_next_line.c ./srcs_gnl/get_next_line_utils.c
 
-#SRCS_BONUS = ./srcs_bonus/main_bonus.c
+SRCS_BONUS = ./srcs_bonus/main_bonus.c
 
 HEADER = ./includes
 
@@ -14,7 +14,7 @@ MLX_DIR = ./minilibx-linux
 
 OBJS = ${SRCS:.c=.o}
 
-#OBJS_BONUS = ${SRCS_BONUS:.c=.o}
+OBJS_BONUS = ${SRCS_BONUS:.c=.o}
 
 CC = gcc
 
