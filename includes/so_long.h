@@ -25,25 +25,46 @@ enum	e_panel_of_map
 	EXIT,
 	PLAYER,
 	ENEMY,
-	PANEL_NUM,
+	PANEL_NUM
 };
 
 enum	e_coordinates
 {
 	X,
 	Y,
-	COOR_NUM,
+	COOR_NUM
 };
+
+enum	e_side
+{
+	FRONT_SIDE,
+	RIGHT_SIDE,
+	BUCK_SIDE,
+	LEFT_SIDE,
+	SIDE_NUM
+};
+
+enum	e_action//
+{
+	ACTION1,
+	ACTION2,
+	ACTION3,
+	ACTION4,
+	ACTION_NUM
+};
+
 
 typedef struct	s_data {
 	void	*mlx;
 	void	*mlx_win;
-	void	*img[PANEL_NUM];
+//	void	*img[PANEL_NUM];
+	void	*img[PANEL_NUM][SIDE_NUM][ACTION_NUM];//
+	int		img_side[PANEL_NUM];//
+	int		img_action[PANEL_NUM];//
 	int		img_length[COOR_NUM];
 	int		panel_num[COOR_NUM];
 	int		panel_cnt[PANEL_NUM];
-	int		p_posit[COOR_NUM];
-	int		e_posit[COOR_NUM];
+	int		posit[PANEL_NUM][COOR_NUM];
 	int		move_cnt;
 	int		enemy_moving;
 	int		**map;

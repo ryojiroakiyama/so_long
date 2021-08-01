@@ -9,6 +9,25 @@ void	init_array_zero(int *array, int size)
 		array[i] = 0;
 }
 
+void	init_img_data(t_data *data)
+{
+	int panel;
+	int	side;
+	int	action;
+
+	panel = -1;
+	while (++panel < PANEL_NUM)
+	{
+		side = -1;
+		while (++side < SIDE_NUM)
+		{
+			action = -1;
+			while (++action < ACTION_NUM)
+				data->img[panel][side][action] = NULL;
+		}
+	}
+}
+
 void	set_enemy_posit(t_data *data)
 {
 	int	x;
@@ -22,8 +41,8 @@ void	set_enemy_posit(t_data *data)
 		{
 			if (data->map[x][y] == EMPTY)
 			{
-				data->e_posit[X] = x;
-				data->e_posit[Y] = y;
+				data->posit[ENEMY][X] = x;
+				data->posit[ENEMY][Y] = y;
 				data->map[x][y] = ENEMY;
 				return ;
 			}
@@ -31,21 +50,100 @@ void	set_enemy_posit(t_data *data)
 	}
 }
 
+void	set_empty_img(t_data *data)
+{
+	data->img[EMPTY][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/empty/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EMPTY][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/empty/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EMPTY][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/empty/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EMPTY][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/empty/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[EMPTY] = FRONT_SIDE;
+	data->img_action[EMPTY] = ACTION1;
+}
+
+void	set_wall_img(t_data *data)
+{
+	data->img[WALL][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/wall/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[WALL][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/wall/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[WALL][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/wall/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[WALL][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/wall/front/front.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[WALL] = FRONT_SIDE;
+	data->img_action[WALL] = ACTION1;
+}
+
+void	set_coll_img(t_data *data)
+{
+	data->img[COLL][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/coll/front/front1.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[COLL][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/coll/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[COLL][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/coll/front/front3.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[COLL][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/coll/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[COLL] = FRONT_SIDE;
+	data->img_action[COLL] = ACTION1;
+}
+
+void	set_exit_img(t_data *data)
+{
+	data->img[EXIT][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/exit/front/front13.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EXIT][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/exit/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EXIT][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/exit/front/front13.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[EXIT][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/exit/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[EXIT] = FRONT_SIDE;
+	data->img_action[EXIT] = ACTION1;
+}
+
+void	set_player_img(t_data *data)
+{
+	data->img[PLAYER][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/player/front/front1.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[PLAYER][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/player/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[PLAYER][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/player/front/front3.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[PLAYER][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/player/front/front24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[PLAYER] = FRONT_SIDE;
+	data->img_action[PLAYER] = ACTION1;
+}
+
+void	set_enemy_img(t_data *data)
+{
+	data->img[ENEMY][RIGHT_SIDE][ACTION1] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/enemy/right/right1.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[ENEMY][RIGHT_SIDE][ACTION2] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/enemy/right/right24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[ENEMY][RIGHT_SIDE][ACTION3] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/enemy/right/right3.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img[ENEMY][RIGHT_SIDE][ACTION4] = mlx_xpm_file_to_image\
+		(data->mlx, "./xpm/enemy/right/right24.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	data->img_side[ENEMY] = RIGHT_SIDE;
+	data->img_action[ENEMY] = ACTION1;
+}
+
 void	init_mlx_data(t_data *data)
 {
 	data->mlx = mlx_init();
-	data->img[EMPTY] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/forest.xpm", &(data->img_length[X]), &(data->img_length[Y]));
-	data->img[WALL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/wall.xpm", &(data->img_length[X]), &(data->img_length[Y]));
-	data->img[COLL] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/coll1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
-	data->img[EXIT] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/exit1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
-	data->img[PLAYER] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/player.xpm", &(data->img_length[X]), &(data->img_length[Y]));
-	data->img[ENEMY] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/enemy1_empty.xpm", &(data->img_length[X]), &(data->img_length[Y]));
+	init_img_data(data);
+	set_empty_img(data);
+	set_wall_img(data);
+	set_coll_img(data);
+	set_exit_img(data);
+	set_player_img(data);
+	set_enemy_img(data);
 	data->mlx_win = mlx_new_window(data->mlx, \
 		data->panel_num[X] * data->img_length[X], data->panel_num[Y] * data->img_length[Y], "Hello world!");
 	data->move_cnt = 0;
@@ -65,11 +163,24 @@ void	free_2d_array(int **array, int until)
 
 void	destroy_all_images(t_data *data)
 {
-	int i;
+	int panel;
+	int	side;
+	int	action;
 
-	i = -1;
-	while (++i < PANEL_NUM)
-		mlx_destroy_image(data->mlx, data->img[i]);
+	panel = -1;
+	while (++panel < PANEL_NUM)
+	{
+		side = -1;
+		while (++side < SIDE_NUM)
+		{
+			action = -1;
+			while (++action < ACTION_NUM)
+			{
+				if (data->img[panel][side][action] != NULL)
+					mlx_destroy_image(data->mlx, data->img[panel][side][action]);
+			}
+		}
+	}
 }
 
 int	close_win(t_data *data)
@@ -97,6 +208,7 @@ void	put_map(t_data *data)
 {
 	int	x;
 	int	y;
+	int	panel;
 
 	x = -1;
 	while (++x < data->panel_num[X])
@@ -104,8 +216,9 @@ void	put_map(t_data *data)
 		y = -1;
 		while (++y < data->panel_num[Y])
 		{
-			mlx_put_image_to_window\
-			(data->mlx, data->mlx_win, data->img[data->map[x][y]], \
+			panel = data->map[x][y];
+			mlx_put_image_to_window(data->mlx, data->mlx_win, \
+			data->img[panel][data->img_side[panel]][data->img_action[panel]], \
 			x * data->img_length[X], y * data->img_length[Y]);
 		}
 	}
@@ -162,18 +275,18 @@ void	move_to_empty(int who, int *next, int direction, t_data *data)
 {
 	if (who == ENEMY)
 	{
-		data->map[data->e_posit[X]][data->e_posit[Y]] = EMPTY;
+		data->map[data->posit[ENEMY][X]][data->posit[ENEMY][Y]] = EMPTY;
 		data->map[next[X]][next[Y]] = ENEMY;
-		data->e_posit[X] = next[X];
-		data->e_posit[Y] = next[Y];
+		data->posit[ENEMY][X] = next[X];
+		data->posit[ENEMY][Y] = next[Y];
 		data->enemy_moving = direction;
 	}
 	if (who == PLAYER)
 	{
-		data->map[data->p_posit[X]][data->p_posit[Y]] = EMPTY;
+		data->map[data->posit[PLAYER][X]][data->posit[PLAYER][Y]] = EMPTY;
 		data->map[next[X]][next[Y]] = PLAYER;
-		data->p_posit[X] = next[X];
-		data->p_posit[Y] = next[Y];
+		data->posit[PLAYER][X] = next[X];
+		data->posit[PLAYER][Y] = next[Y];
 		data->move_cnt++;
 	}
 }
@@ -182,15 +295,15 @@ void	serch_empty(t_data *data)
 {
 	int next[2];
 
-	if (get_next_posit(data->e_posit, next, data->enemy_moving, data) == EMPTY)
+	if (get_next_posit(data->posit[ENEMY], next, data->enemy_moving, data) == EMPTY)
 		move_to_empty(ENEMY, next, data->enemy_moving, data);
-	else if (get_next_posit(data->e_posit, next, UP, data) == EMPTY)
+	else if (get_next_posit(data->posit[ENEMY], next, UP, data) == EMPTY)
 		move_to_empty(ENEMY, next, UP, data);
-	else if (get_next_posit(data->e_posit, next, RIGHT, data) == EMPTY)
+	else if (get_next_posit(data->posit[ENEMY], next, RIGHT, data) == EMPTY)
 		move_to_empty(ENEMY, next, RIGHT, data);
-	else if (get_next_posit(data->e_posit, next, DOWN, data) == EMPTY)
+	else if (get_next_posit(data->posit[ENEMY], next, DOWN, data) == EMPTY)
 		move_to_empty(ENEMY, next, DOWN, data);
-	else if (get_next_posit(data->e_posit, next, LEFT, data) == EMPTY)
+	else if (get_next_posit(data->posit[ENEMY], next, LEFT, data) == EMPTY)
 		move_to_empty(ENEMY, next, LEFT, data);
 }
 
@@ -204,8 +317,8 @@ void	move_enemy(t_data *data)
 	cnt++;
 	if (cnt == 2000)
 	{
-		direction = which_direction(data->e_posit, data->p_posit);
-		panel = get_next_posit(data->e_posit, next, direction, data);
+		direction = which_direction(data->posit[ENEMY], data->posit[PLAYER]);
+		panel = get_next_posit(data->posit[ENEMY], next, direction, data);
 		if (panel == PLAYER)
 			close_win(data);
 		else if (panel == EMPTY)
@@ -216,9 +329,29 @@ void	move_enemy(t_data *data)
 	}
 }
 
+void	run_animation(t_data *data)
+{
+	static int	cnt;
+	int			panel;
+
+	cnt++;
+	if (cnt == 500)
+	{
+		panel = -1;
+		while (++panel < PANEL_NUM)
+		{
+			data->img_action[panel]++;
+			if (data->img_action[panel] == ACTION_NUM)
+				data->img_action[panel] = 0;
+		}
+		cnt = 0;
+	}
+}
+
 int	loop_func(t_data *data)
 {
 	move_enemy(data);
+	run_animation(data);
 	put_map(data);
 	return (0);
 }
@@ -228,7 +361,7 @@ int	key_hook(int keycode, t_data *data)
 	int	next_panel;
 	int	next[2];
 
-	next_panel = get_next_posit(data->p_posit, next, keycode, data);
+	next_panel = get_next_posit(data->posit[PLAYER], next, keycode, data);
 	if (next_panel == EXIT && data->panel_cnt[COLL] == 0)
 		close_win(data);
 	if (next_panel == ENEMY)
@@ -362,8 +495,8 @@ int		check_map(t_data *data)
 				data->panel_cnt[EXIT]++;
 			if (data->map[x][y] == PLAYER)
 			{
-				data->p_posit[X] = x;
-				data->p_posit[Y] = y;
+				data->posit[PLAYER][X] = x;
+				data->posit[PLAYER][Y] = y;
 				data->panel_cnt[PLAYER]++;
 			}
 		}
