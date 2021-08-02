@@ -17,7 +17,7 @@
 #define DOWN 115
 #define ESC 65307
 
-enum	e_square
+enum	e_panel_of_map
 {
 	EMPTY,
 	WALL,
@@ -25,7 +25,7 @@ enum	e_square
 	EXIT,
 	PLAYER,
 	ENEMY,
-	SQUARE_NUM
+	PANEL_NUM
 };
 
 enum	e_coordinates
@@ -57,13 +57,13 @@ enum	e_action
 typedef struct	s_data {
 	void	*mlx;
 	void	*mlx_win;
-	void	*img[SQUARE_NUM][SIDE_NUM][ACTION_NUM];
-	int		square_side[SQUARE_NUM];
-	int		square_act[SQUARE_NUM];
-	int		square_len[COOR_NUM];
-	int		square_num[COOR_NUM];
-	int		type_cnt[SQUARE_NUM];
-	int		posit[SQUARE_NUM][COOR_NUM];
+	void	*img[PANEL_NUM][SIDE_NUM][ACTION_NUM];
+	int		img_side[PANEL_NUM];
+	int		img_action[PANEL_NUM];
+	int		img_length[COOR_NUM];
+	int		panel_num[COOR_NUM];
+	int		panel_cnt[PANEL_NUM];
+	int		posit[PANEL_NUM][COOR_NUM];
 	int		move_cnt;
 	char	*print_string;
 	int		enemy_moving;
