@@ -1,15 +1,67 @@
 #include "so_long.h"
 
-void	ft_exit(char *string, int status)
+void	free_2d_array(int **array, int until)
 {
-	ft_putendl_fd(string, 2);
-	exit(status);
+	if (array)
+	{
+		while (--until >= 0)
+			free(array[until]);
+		free(array);
+	}
 }
 
-void	perrexit(const char *s, int	status)
+void	destroy_all_images(t_data *data)
 {
-	perror(s);
-	exit(status);
+	int square;
+	int	side;
+	int	action;
+
+	square = -1;
+	while (++square < SQUARE_NUM)
+	{
+		side = -1;
+		while (++side < SIDE_NUM)
+		{
+			action = -1;
+			while (++action < ACTION_NUM)
+			{
+				if (data->img[square][side][action])
+					mlx_destroy_image(data->mlx, data->img[square][side][action]);
+			}
+		}
+	}
+}
+
+int	ft_exit(int status, char *s, t_data *data)
+{
+	if (data->mlx_win)
+		mlx_destroy_window(data->mlx, data->mlx_win);
+	destroy_all_images(data);
+	if (data->mlx)
+		mlx_destroy_display(data->mlx);
+	free_2d_array(data->map, data->square_num[X]);
+	free(data->print_string);
+	if (data->mlx)
+		free(data->mlx);
+	if (status == NORMAL)
+		exit(0);
+	if (status == ABNORMAL)
+	{
+		ft_putendl_fd(s, 2);
+		exit(1);
+	}
+	if (status == SYSERROR)
+	{
+		perror(s);
+		exit(1);
+	}
+	return (0);
+}
+
+int	click_red_cross(t_data *data)
+{
+	ft_exit(NORMAL, NULL, data);
+	return (0);
 }
 
 void	init_array_zero(int *array, int size)
@@ -54,6 +106,23 @@ void	init_img(t_data *data)
 	}
 }
 
+void	init_data(t_data *data)
+{
+	data->mlx = NULL;
+	data->mlx_win = NULL;
+	init_img(data);
+	init_array_zero(data->square_side, SQUARE_NUM);
+	init_array_zero(data->square_act, SQUARE_NUM);
+	init_array_zero(data->square_len, SQUARE_NUM);
+	init_array_zero(data->square_num, COOR_NUM);
+	init_array_zero(data->type_cnt, SQUARE_NUM);
+	init_posit(data);
+	data->move_cnt = 0;
+	data->print_string = NULL;
+	data->enemy_moving = 0;
+	data->map = NULL;
+}
+
 void	set_enemy_posit(t_data *data)
 {
 	int	x;
@@ -74,23 +143,6 @@ void	set_enemy_posit(t_data *data)
 			}
 		}
 	}
-}
-
-void	init_data(t_data *data)
-{
-	data->mlx = NULL;
-	data->mlx_win = NULL;
-	init_img(data);
-	init_array_zero(data->square_side, SQUARE_NUM);
-	init_array_zero(data->square_act, SQUARE_NUM);
-	init_array_zero(data->square_len, SQUARE_NUM);
-	init_array_zero(data->square_num, COOR_NUM);
-	init_array_zero(data->type_cnt, SQUARE_NUM);
-	init_posit(data);
-	data->move_cnt = 0;
-	data->print_string = NULL;
-	data->enemy_moving = 0;
-	data->map = NULL;
 }
 
 void	set_empty_img(t_data *data)
@@ -192,51 +244,6 @@ void	set_mlx_data(t_data *data)
 	set_enemy_posit(data);
 }
 
-void	free_2d_array(int **array, int until)
-{
-	if (array)
-	{
-		while (--until >= 0)
-			free(array[until]);
-		free(array);
-	}
-}
-
-void	destroy_all_images(t_data *data)
-{
-	int square;
-	int	side;
-	int	action;
-
-	square = -1;
-	while (++square < SQUARE_NUM)
-	{
-		side = -1;
-		while (++side < SIDE_NUM)
-		{
-			action = -1;
-			while (++action < ACTION_NUM)
-			{
-				if (data->img[square][side][action] != NULL)
-					mlx_destroy_image(data->mlx, data->img[square][side][action]);
-			}
-		}
-	}
-}
-
-int	close_mlx(t_data *data)
-{
-	if (!(data->mlx_win))
-		mlx_destroy_window(data->mlx, data->mlx_win);
-	destroy_all_images(data);
-	if (!(data->mlx))
-		mlx_destroy_display(data->mlx);
-	free_2d_array(data->map, data->square_num[X]);
-	free(data->print_string);
-	free(data->mlx);
-	exit(0);
-	return (0);
-}
 /*
 void	print_info(t_data *data)
 {
@@ -251,12 +258,12 @@ void	print_info(t_data *data)
 //	ft_putstr_fd("\n", 1);
 	player_move = ft_itoa(data->move_cnt);
 	if (!player_move)
-		close_mlx(data);
+		ft_exit(data);
 	print_string = ft_strjoin("number of moves : ", player_move);
 	if (!print_string)
 	{
 		free(player_move);
-		close_mlx(data);
+		ft_exit(data);
 	}
 	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, print_string);
 	free(player_move);
@@ -381,7 +388,7 @@ void	move_enemy(t_data *data)
 		direction = which_direction(data->posit[ENEMY], data->posit[PLAYER]);
 		square = get_next_posit(data->posit[ENEMY], next, direction, data);
 		if (square == PLAYER)
-			close_mlx(data);
+			ft_exit(NORMAL, NULL, data);
 		else if (square == EMPTY)
 			move_to_empty(ENEMY, next, direction, data);
 		else
@@ -423,13 +430,14 @@ void	set_print_string(t_data *data)
 
 	player_move = ft_itoa(data->move_cnt);
 	if (!player_move)
-		close_mlx(data);
+		ft_exit(SYSERROR, "ft_itoa", data);
 	free(data->print_string);
+	data->print_string = NULL;
 	data->print_string = ft_strjoin("number of moves : ", player_move);
 	free(player_move);
 	if (!data->print_string)
-		close_mlx(data);
-	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
+		ft_exit(SYSERROR, "ft_strjoin", data);
+//	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
 }
 
 int	key_hook(int keycode, t_data *data)
@@ -439,9 +447,9 @@ int	key_hook(int keycode, t_data *data)
 
 	next_square = get_next_posit(data->posit[PLAYER], next, keycode, data);
 	if (next_square == EXIT && data->type_cnt[COLL] == 0)
-		close_mlx(data);
+		ft_exit(NORMAL, NULL, data);
 	if (next_square == ENEMY)
-		close_mlx(data);
+		ft_exit(NORMAL, NULL, data);
 	if (next_square == COLL)
 	{
 		data->map[next[X]][next[Y]] = EMPTY;
@@ -451,15 +459,15 @@ int	key_hook(int keycode, t_data *data)
 	if (next_square == EMPTY)
 		move_to_empty(PLAYER, next, keycode, data);
 	if (keycode == ESC)
-		close_mlx(data);
+		ft_exit(NORMAL, NULL, data);
 	set_print_string(data);
 	return (keycode);
 }
 
-int	exit_or_not(int result)
+int	check_result(int result, char *s, t_data *data)
 {
 	if (result < 0)
-		exit(1);
+		ft_exit(SYSERROR, s, data);
 	return (result);
 }
 
@@ -470,12 +478,12 @@ int	read_map(char *map_path, t_data *data)
 	char	*line;
 	int		error_cnt;
 
-	fd = exit_or_not(open(map_path, O_RDONLY));
+	fd = check_result(open(map_path, O_RDONLY), "open", data);
 	status = 1;
 	error_cnt = 0;
 	while (status)
 	{
-		status = exit_or_not(get_next_line(fd, &line));
+		status = check_result(get_next_line(fd, &line), "gnl", data);
 		if (status == 1)
 		{
 			data->square_num[Y]++;
@@ -488,7 +496,7 @@ int	read_map(char *map_path, t_data *data)
 			error_cnt++;
 		free(line);
 	}
-	exit_or_not(close(fd));
+	check_result(close(fd), "close", data);
 	return (error_cnt || data->square_num[X] == 0 || data->square_num[Y] == 0);
 }
 
@@ -538,18 +546,18 @@ void	set_map(char *map_path, t_data *data)
 
 	data->map = malloc_2d_array(data->square_num[X], data->square_num[Y]);
 	if (!(data->map))
-		exit(1);
-	fd = exit_or_not(open(map_path, O_RDONLY));
+		ft_exit(SYSERROR, "malloc_2d_array", data);
+	fd = check_result(open(map_path, O_RDONLY), "open", data);
 	y = -1;
 	while (++y < data->square_num[Y])
 	{
-		exit_or_not(get_next_line(fd, &line));
+		check_result(get_next_line(fd, &line), "gnl", data);
 		x = -1;
 		while (++x < data->square_num[X])
 			data->map[x][y] = is_square(line[x]);
 		free(line);
 	}
-	exit_or_not(close(fd));
+	check_result(close(fd), "close", data);
 }
 
 int		check_map(t_data *data)
@@ -563,7 +571,9 @@ int		check_map(t_data *data)
 		y = -1;
 		while (++y < data->square_num[Y])
 		{
-			if ((x == 0 || x == data->square_num[X] - 1 || y == 0 || y == data->square_num[Y] - 1) && data->map[x][y] != WALL)
+			if ((x == 0 || x == data->square_num[X] - 1 \
+				|| y == 0 || y == data->square_num[Y] - 1) \
+				&& data->map[x][y] != WALL)
 				return (1);
 			if (data->map[x][y] == COLL)
 				data->type_cnt[COLL]++;
@@ -577,27 +587,26 @@ int		check_map(t_data *data)
 			}
 		}
 	}
-	return (data->type_cnt[COLL] == 0 || data->type_cnt[EXIT] == 0 || data->type_cnt[PLAYER] != 1);
+	return (data->type_cnt[COLL] == 0 \
+			|| data->type_cnt[EXIT] == 0 \
+			|| data->type_cnt[PLAYER] != 1);
 }
 
 int	main(int ac, char **av)
 {
 	t_data	data;
 
-	if (ac != 2)
-		ft_exit("invalid number of argument", 1);
 	init_data(&data);
+	if (ac != 2)
+		ft_exit(ABNORMAL, "invalid number of argument", &data);
 	if (read_map(av[1], &data))
-		exit(1);
+		ft_exit(ABNORMAL, "invalid map", &data);
 	set_map(av[1], &data);
 	if (check_map(&data))
-	{
-		free_2d_array(data.map, data.square_num[X]);
-		exit(1);
-	}
+		ft_exit(ABNORMAL, "invalid map", &data);
 	set_mlx_data(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
-	mlx_hook(data.mlx_win, 17, 1L << 17, close_mlx, &data);
+	mlx_hook(data.mlx_win, 17, 1L << 17, click_red_cross, &data);
 	mlx_loop_hook(data.mlx, loop_func, &data);
 //	print_info(data);
 	set_print_string(&data);

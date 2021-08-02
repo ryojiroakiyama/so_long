@@ -53,6 +53,14 @@ enum	e_action
 	ACTION_NUM
 };
 
+enum	e_status
+{
+	NORMAL,
+	ABNORMAL,
+	SYSERROR,
+	STATUS_NUM
+};
+
 
 typedef struct	s_data {
 	void	*mlx;
