@@ -12,7 +12,7 @@ void	free_2d_array(int **array, int until)
 
 void	destroy_all_images(t_data *data)
 {
-	int square;
+	int	square;
 	int	side;
 	int	action;
 
@@ -26,7 +26,8 @@ void	destroy_all_images(t_data *data)
 			while (++action < ACTION_NUM)
 			{
 				if (data->img[square][side][action])
-					mlx_destroy_image(data->mlx, data->img[square][side][action]);
+					mlx_destroy_image(data->mlx, \
+						data->img[square][side][action]);
 			}
 		}
 	}
@@ -58,15 +59,9 @@ int	ft_exit(int status, char *s, t_data *data)
 	return (0);
 }
 
-int	click_red_cross(t_data *data)
-{
-	ft_exit(NORMAL, NULL, data);
-	return (0);
-}
-
 void	init_array_zero(int *array, int size)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	while (++i < size)
@@ -75,7 +70,7 @@ void	init_array_zero(int *array, int size)
 
 void	init_posit(t_data *data)
 {
-	int square;
+	int	square;
 	int	coor;
 
 	square = -1;
@@ -89,7 +84,7 @@ void	init_posit(t_data *data)
 
 void	init_img(t_data *data)
 {
-	int square;
+	int	square;
 	int	side;
 	int	action;
 
@@ -145,103 +140,177 @@ void	set_enemy_posit(t_data *data)
 	}
 }
 
+void	*is_null(void *result, char *s, t_data *data)
+{
+	if (!result)
+		ft_exit(ABNORMAL, s, data);
+	return (result);
+}
+
 void	set_empty_img(t_data *data)
 {
-	data->img[EMPTY][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/empty/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EMPTY][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/empty/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EMPTY][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/empty/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EMPTY][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/empty/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[EMPTY][FRONT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/empty/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EMPTY][FRONT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/empty/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EMPTY][FRONT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/empty/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EMPTY][FRONT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/empty/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[EMPTY] = FRONT_SIDE;
 	data->square_act[EMPTY] = ACTION1;
 }
 
 void	set_wall_img(t_data *data)
 {
-	data->img[WALL][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/wall/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[WALL][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/wall/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[WALL][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/wall/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[WALL][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/wall/front/front.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[WALL][FRONT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/wall/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[WALL][FRONT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/wall/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[WALL][FRONT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/wall/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[WALL][FRONT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/wall/front/front.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[WALL] = FRONT_SIDE;
 	data->square_act[WALL] = ACTION1;
 }
 
 void	set_coll_img(t_data *data)
 {
-	data->img[COLL][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/coll/front/front1.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[COLL][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/coll/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[COLL][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/coll/front/front3.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[COLL][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/coll/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[COLL][FRONT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/coll/front/front1.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[COLL][FRONT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/coll/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[COLL][FRONT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/coll/front/front3.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[COLL][FRONT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/coll/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[COLL] = FRONT_SIDE;
 	data->square_act[COLL] = ACTION1;
 }
 
 void	set_exit_img(t_data *data)
 {
-	data->img[EXIT][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/exit/front/front13.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EXIT][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/exit/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EXIT][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/exit/front/front13.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[EXIT][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/exit/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[EXIT][FRONT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/exit/front/front13.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EXIT][FRONT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/exit/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EXIT][FRONT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/exit/front/front13.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[EXIT][FRONT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/exit/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[EXIT] = FRONT_SIDE;
 	data->square_act[EXIT] = ACTION1;
 }
 
 void	set_player_img(t_data *data)
 {
-	data->img[PLAYER][FRONT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/player/front/front1.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[PLAYER][FRONT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/player/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[PLAYER][FRONT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/player/front/front3.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[PLAYER][FRONT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/player/front/front24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[PLAYER][FRONT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/player/front/front1.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[PLAYER][FRONT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/player/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[PLAYER][FRONT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/player/front/front3.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[PLAYER][FRONT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/player/front/front24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[PLAYER] = FRONT_SIDE;
 	data->square_act[PLAYER] = ACTION1;
 }
 
 void	set_enemy_img(t_data *data)
 {
-	data->img[ENEMY][RIGHT_SIDE][ACTION1] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/enemy/right/right1.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[ENEMY][RIGHT_SIDE][ACTION2] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/enemy/right/right24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[ENEMY][RIGHT_SIDE][ACTION3] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/enemy/right/right3.xpm", &(data->square_len[X]), &(data->square_len[Y]));
-	data->img[ENEMY][RIGHT_SIDE][ACTION4] = mlx_xpm_file_to_image\
-		(data->mlx, "./xpm/enemy/right/right24.xpm", &(data->square_len[X]), &(data->square_len[Y]));
+	data->img[ENEMY][RIGHT_SIDE][ACTION1] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/enemy/right/right1.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[ENEMY][RIGHT_SIDE][ACTION2] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/enemy/right/right24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[ENEMY][RIGHT_SIDE][ACTION3] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/enemy/right/right3.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	data->img[ENEMY][RIGHT_SIDE][ACTION4] = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/enemy/right/right24.xpm", \
+		&(data->square_len[X]), &(data->square_len[Y])), \
+		"mlx_xpm_file_to_image", data);
 	data->square_side[ENEMY] = RIGHT_SIDE;
 	data->square_act[ENEMY] = ACTION1;
 }
 
+void	set_print_string(t_data *data)
+{
+	char	*player_move;
+
+	player_move = ft_itoa(data->move_cnt);
+	if (!player_move)
+		ft_exit(SYSERROR, "ft_itoa", data);
+	free(data->print_string);
+	data->print_string = NULL;
+	data->print_string = ft_strjoin("number of moves : ", player_move);
+	free(player_move);
+	if (!data->print_string)
+		ft_exit(SYSERROR, "ft_strjoin", data);
+}
+
 void	set_mlx_data(t_data *data)
 {
-	data->mlx = mlx_init();
+	data->mlx = is_null(mlx_init(), "mlx_init", data);
 	set_empty_img(data);
 	set_wall_img(data);
 	set_coll_img(data);
 	set_exit_img(data);
 	set_player_img(data);
 	set_enemy_img(data);
-	data->mlx_win = mlx_new_window\
-		(data->mlx, data->square_num[X] * data->square_len[X], \
-		data->square_num[Y] * data->square_len[Y], "Hello world!");
+	data->mlx_win = is_null(\
+		mlx_new_window(data->mlx, \
+		data->square_num[X] * data->square_len[X], \
+		data->square_num[Y] * data->square_len[Y], \
+		"Hello world!"), \
+		"mlx_new_window", data);
 	set_enemy_posit(data);
+	set_print_string(data);
 }
 
 /*
@@ -284,12 +353,15 @@ void	put_map(t_data *data)
 		{
 			square = data->map[x][y];
 			mlx_put_image_to_window(data->mlx, data->mlx_win, \
-			data->img[square][data->square_side[square]][data->square_act[square]], \
+			data->img[square] \
+			[data->square_side[square]] \
+			[data->square_act[square]], \
 			x * data->square_len[X], y * data->square_len[Y]);
 		}
 	}
 //	print_info(data);
-	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
+	mlx_string_put(data->mlx, data->mlx_win, \
+		100, 100, 0x00FF0000, data->print_string);
 }
 
 int	which_direction(int *src, int *dst)
@@ -361,9 +433,10 @@ void	move_to_empty(int who, int *next, int direction, t_data *data)
 
 void	serch_empty(t_data *data)
 {
-	int next[2];
+	int	next[2];
 
-	if (get_next_posit(data->posit[ENEMY], next, data->enemy_moving, data) == EMPTY)
+	if (get_next_posit(data->posit[ENEMY], next, data->enemy_moving, data) \
+			== EMPTY)
 		move_to_empty(ENEMY, next, data->enemy_moving, data);
 	else if (get_next_posit(data->posit[ENEMY], next, UP, data) == EMPTY)
 		move_to_empty(ENEMY, next, UP, data);
@@ -424,20 +497,10 @@ int	loop_func(t_data *data)
 	return (0);
 }
 
-void	set_print_string(t_data *data)
+int	click_red_cross(t_data *data)
 {
-	char *player_move;
-
-	player_move = ft_itoa(data->move_cnt);
-	if (!player_move)
-		ft_exit(SYSERROR, "ft_itoa", data);
-	free(data->print_string);
-	data->print_string = NULL;
-	data->print_string = ft_strjoin("number of moves : ", player_move);
-	free(player_move);
-	if (!data->print_string)
-		ft_exit(SYSERROR, "ft_strjoin", data);
-//	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, data->print_string);
+	ft_exit(NORMAL, NULL, data);
+	return (0);
 }
 
 int	key_hook(int keycode, t_data *data)
@@ -464,7 +527,7 @@ int	key_hook(int keycode, t_data *data)
 	return (keycode);
 }
 
-int	check_result(int result, char *s, t_data *data)
+int	is_error(int result, char *s, t_data *data)
 {
 	if (result < 0)
 		ft_exit(SYSERROR, s, data);
@@ -478,12 +541,12 @@ int	read_map(char *map_path, t_data *data)
 	char	*line;
 	int		error_cnt;
 
-	fd = check_result(open(map_path, O_RDONLY), "open", data);
+	fd = is_error(open(map_path, O_RDONLY), "open", data);
 	status = 1;
 	error_cnt = 0;
 	while (status)
 	{
-		status = check_result(get_next_line(fd, &line), "gnl", data);
+		status = is_error(get_next_line(fd, &line), "gnl", data);
 		if (status == 1)
 		{
 			data->square_num[Y]++;
@@ -496,14 +559,14 @@ int	read_map(char *map_path, t_data *data)
 			error_cnt++;
 		free(line);
 	}
-	check_result(close(fd), "close", data);
+	is_error(close(fd), "close", data);
 	return (error_cnt || data->square_num[X] == 0 || data->square_num[Y] == 0);
 }
 
 int	**malloc_2d_array(int size1, int size2)
 {
-	int cnt;
-	int **array;
+	int	cnt;
+	int	**array;
 
 	array = (int **)malloc(sizeof(int *) * size1);
 	if (!array)
@@ -547,20 +610,20 @@ void	set_map(char *map_path, t_data *data)
 	data->map = malloc_2d_array(data->square_num[X], data->square_num[Y]);
 	if (!(data->map))
 		ft_exit(SYSERROR, "malloc_2d_array", data);
-	fd = check_result(open(map_path, O_RDONLY), "open", data);
+	fd = is_error(open(map_path, O_RDONLY), "open", data);
 	y = -1;
 	while (++y < data->square_num[Y])
 	{
-		check_result(get_next_line(fd, &line), "gnl", data);
+		is_error(get_next_line(fd, &line), "gnl", data);
 		x = -1;
 		while (++x < data->square_num[X])
 			data->map[x][y] = is_square(line[x]);
 		free(line);
 	}
-	check_result(close(fd), "close", data);
+	is_error(close(fd), "close", data);
 }
 
-int		check_map(t_data *data)
+int	check_map(t_data *data)
 {
 	int	x;
 	int	y;
@@ -571,24 +634,21 @@ int		check_map(t_data *data)
 		y = -1;
 		while (++y < data->square_num[Y])
 		{
+			data->type_cnt[data->map[x][y]]++;
+			if (data->map[x][y] < 0)
+				return (1);
 			if ((x == 0 || x == data->square_num[X] - 1 \
 				|| y == 0 || y == data->square_num[Y] - 1) \
 				&& data->map[x][y] != WALL)
 				return (1);
-			if (data->map[x][y] == COLL)
-				data->type_cnt[COLL]++;
-			if (data->map[x][y] == EXIT)
-				data->type_cnt[EXIT]++;
 			if (data->map[x][y] == PLAYER)
 			{
 				data->posit[PLAYER][X] = x;
 				data->posit[PLAYER][Y] = y;
-				data->type_cnt[PLAYER]++;
 			}
 		}
 	}
-	return (data->type_cnt[COLL] == 0 \
-			|| data->type_cnt[EXIT] == 0 \
+	return (data->type_cnt[COLL] == 0 || data->type_cnt[EXIT] == 0 \
 			|| data->type_cnt[PLAYER] != 1);
 }
 
@@ -609,7 +669,6 @@ int	main(int ac, char **av)
 	mlx_hook(data.mlx_win, 17, 1L << 17, click_red_cross, &data);
 	mlx_loop_hook(data.mlx, loop_func, &data);
 //	print_info(data);
-	set_print_string(&data);
 	mlx_loop(data.mlx);
 	return (0);
 }
