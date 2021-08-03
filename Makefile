@@ -12,7 +12,16 @@ SRCS_NAME = main.c initialization.c \
 
 SRCS = ${addprefix ${SRCS_DIR}, ${SRCS_NAME}}
 
-SRCS_BONUS = ./srcs_bonus/main_bonus.c ./srcs_bonus/get_next_line_bonus.c ./srcs_bonus/get_next_line_utils_bonus.c
+SRCS_BONUS_DIR = ./srcs_bonus/
+
+SRCS_BONUS_NAME = main_bonus.c initialization_bonus.c \
+				get_map_bonus.c get_map_utils_bonus.c \
+				set_mlx_data_bonus.c set_mlx_image1_bonus.c set_mlx_image2_bonus.c \
+				event_occurrence_bonus.c change_map_utils_bonus.c \
+				loop_bonus.c exit_bonus.c \
+				get_next_line_bonus.c get_next_line_utils_bonus.c
+
+SRCS_BONUS = ${addprefix ${SRCS_BONUS_DIR}, ${SRCS_BONUS_NAME}}
 
 HEADER = ./includes
 

@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 void	init_array_zero(int *array, int size)
 {
@@ -44,5 +44,9 @@ void	init_data(t_data *data)
 	while (++square < SQUARE_NUM)
 		init_array_zero(data->posit[square], COOR_NUM);
 	data->move_cnt = 0;
+	data->putstr = NULL;
+	data->putstr_img = NULL;
+	init_array_zero(data->putstr_img_len, COOR_NUM);
+	data->enemy_moving = 0;
 	data->map = NULL;
 }
