@@ -2,9 +2,9 @@ NAME = so_long
 
 NAME_BONUS = so_long_bonus
 
-SRCS = ./srcs/main.c ./srcs_gnl/get_next_line.c ./srcs_gnl/get_next_line_utils.c
+SRCS = ./srcs/main.c ./srcs/get_next_line.c ./srcs/get_next_line_utils.c
 
-SRCS_BONUS = ./srcs_bonus/main_bonus.c
+SRCS_BONUS = ./srcs_bonus/main_bonus.c ./srcs_bonus/get_next_line_bonus.c ./srcs_bonus/get_next_line_utils_bonus.c
 
 HEADER = ./includes
 
@@ -27,8 +27,16 @@ all:
 	@${MAKE} -C ${MLX_DIR}
 	@make ${NAME}
 
+bonus:
+	@${MAKE} -C ${LIBFT_DIR}
+	@${MAKE} -C ${MLX_DIR}
+	@make ${NAME_BONUS}
+
 ${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
 	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
+
+${NAME_BONUS}: ${OBJS_BONUS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
+	${CC} ${C_FLAGS} -o ${NAME_BONUS} ${OBJS_BONUS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
 
 val:
 	valgrind --leak-check=full -s --show-leak-kinds=all ./${NAME} ${map}
@@ -36,12 +44,12 @@ val:
 clean:
 	${MAKE} -C ${LIBFT_DIR} clean
 	${MAKE} -C ${MLX_DIR} clean
-	${RM} ${OBJS}
+	${RM} ${OBJS} ${OBJS_BONUS}
 
 fclean: clean
 	${MAKE} -C ${LIBFT_DIR} fclean
-	${RM} ${NAME}
+	${RM} ${NAME} ${NAME_BONUS}
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all bonus val clean fclean re
