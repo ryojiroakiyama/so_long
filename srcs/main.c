@@ -38,10 +38,12 @@ int	ft_exit(int status, char *s, t_data *data)
 	if (data->mlx_win)
 		mlx_destroy_window(data->mlx, data->mlx_win);
 	destroy_all_images(data);
+	if (data->putstr_img)
+		mlx_destroy_image(data->mlx, data->putstr_img);
 	if (data->mlx)
 		mlx_destroy_display(data->mlx);
 	free_2d_array(data->map, data->square_num[X]);
-	free(data->print_string);
+	free(data->putstr);
 	if (data->mlx)
 		free(data->mlx);
 	if (status == NORMAL)
@@ -96,15 +98,16 @@ void	init_data(t_data *data)
 	init_img(data);
 	init_array_zero(data->square_side, SQUARE_NUM);
 	init_array_zero(data->square_act, SQUARE_NUM);
-	init_array_zero(data->square_len, SQUARE_NUM);
+	init_array_zero(data->square_len, COOR_NUM);
 	init_array_zero(data->square_num, COOR_NUM);
 	init_array_zero(data->type_cnt, SQUARE_NUM);
 	square = -1;
 	while (++square < SQUARE_NUM)
 		init_array_zero(data->posit[square], COOR_NUM);
 	data->move_cnt = 0;
-	data->print_string = NULL;
-	init_array_zero(data->print_space, COOR_NUM);
+	data->putstr = NULL;
+	data->putstr_img = NULL;
+	init_array_zero(data->putstr_img_len, COOR_NUM);
 	data->enemy_moving = 0;
 	data->map = NULL;
 }
@@ -270,27 +273,24 @@ void	set_enemy_img(t_data *data)
 	data->square_act[ENEMY] = ACTION1;
 }
 
-void	set_print_string(t_data *data)
+void	set_putstr(t_data *data)
 {
 	char	*player_move;
 
 	player_move = ft_itoa(data->move_cnt);
 	if (!player_move)
 		ft_exit(SYSERROR, "ft_itoa", data);
-	free(data->print_string);
-	data->print_string = NULL;
-	data->print_string = ft_strjoin("move:", player_move);
+	free(data->putstr);
+	data->putstr = NULL;
+	data->putstr = ft_strjoin("move : ", player_move);
 	free(player_move);
-	if (!data->print_string)
+	if (!data->putstr)
 		ft_exit(SYSERROR, "ft_strjoin", data);
 }
 
 void	set_mlx_data(t_data *data)
 {
-	data->print_space[X] = 0;
-	data->print_space[Y] = 15;
 //	set_enemy_posit(data);
-	set_print_string(data);
 	data->mlx = is_null(mlx_init(), "mlx_init", data);
 	set_empty_img(data);
 	set_wall_img(data);
@@ -298,11 +298,16 @@ void	set_mlx_data(t_data *data)
 	set_exit_img(data);
 	set_player_img(data);
 	set_enemy_img(data);
+	data->putstr_img = is_null(\
+		mlx_xpm_file_to_image(data->mlx, "./xpm/putstr/putstr.xpm", \
+		&(data->putstr_img_len[X]), &(data->putstr_img_len[Y])), \
+		"mlx_xpm_file_to_image", data);
+	set_putstr(data);
 	data->mlx_win = is_null(\
 		mlx_new_window(data->mlx, \
-		data->square_num[X] * data->square_len[X] + data->print_space[X], \
-		data->square_num[Y] * data->square_len[Y] + data->print_space[Y], \
-		"Hello world!"), \
+		data->square_num[X] * data->square_len[X], \
+		data->square_num[Y] * data->square_len[Y] + data->putstr_img_len[Y], \
+		"so leng aaaaaai!"), \
 		"mlx_new_window", data);
 }
 
@@ -310,7 +315,7 @@ void	set_mlx_data(t_data *data)
 void	print_info(t_data *data)
 {
 	char *player_move;
-	char *print_string;
+	char *putstr;
 
 //	ft_putstr_fd("\033[2J", 1);
 //	ft_putstr_fd("number of moves : ", 1);
@@ -321,15 +326,15 @@ void	print_info(t_data *data)
 	player_move = ft_itoa(data->move_cnt);
 	if (!player_move)
 		ft_exit(data);
-	print_string = ft_strjoin("number of moves : ", player_move);
-	if (!print_string)
+	putstr = ft_strjoin("number of moves : ", player_move);
+	if (!putstr)
 	{
 		free(player_move);
 		ft_exit(data);
 	}
-	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, print_string);
+	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, putstr);
 	free(player_move);
-	free(print_string);
+	free(putstr);
 }
 */
 
@@ -339,7 +344,6 @@ void	put_map(t_data *data)
 	int	y;
 	int	square;
 
-	mlx_clear_window(data->mlx, data->mlx_win);
 	x = -1;
 	while (++x < data->square_num[X])
 	{
@@ -355,9 +359,11 @@ void	put_map(t_data *data)
 		}
 	}
 //	print_info(data);
+	mlx_put_image_to_window(data->mlx, data->mlx_win, \
+		data->putstr_img , 0, data->square_num[Y] * data->square_len[Y]);
 	mlx_string_put(data->mlx, data->mlx_win, \
-		5, data->square_num[Y] * data->square_len[Y] + data->print_space[Y], \
-		0x00FF0000, data->print_string);
+		5, data->square_num[Y] * data->square_len[Y] + 10, \
+		0x00FF0000, data->putstr);
 }
 
 int	which_direction(int *src, int *dst)
@@ -523,7 +529,7 @@ int	key_hook(int keycode, t_data *data)
 		move_to_empty(PLAYER, next, keycode, data);
 	if (keycode == ESC)
 		ft_exit(NORMAL, NULL, data);
-	set_print_string(data);
+	set_putstr(data);
 	return (keycode);
 }
 
@@ -658,12 +664,12 @@ int	main(int ac, char **av)
 
 	init_data(&data);
 	if (ac != 2)
-		ft_exit(ABNORMAL, "invalid number of argument", &data);
+		ft_exit(ABNORMAL, "Error\ninvalid number of argument", &data);
 	if (read_map(av[1], &data))
-		ft_exit(ABNORMAL, "invalid map", &data);
+		ft_exit(ABNORMAL, "Error\ninvalid map", &data);
 	set_map(av[1], &data);
 	if (check_map(&data))
-		ft_exit(ABNORMAL, "invalid map", &data);
+		ft_exit(ABNORMAL, "Error\ninvalid map", &data);
 	set_mlx_data(&data);
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 17, 1L << 17, click_red_cross, &data);
