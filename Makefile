@@ -37,17 +37,20 @@ CC = gcc
 
 CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} -I ${HEADER} -I ${LIBFT_DIR}
 
-RM = rm -f
+RM = rm -rf
 
-all:
-	@${MAKE} -C ${LIBFT_DIR}
+all: ${MLX_DIR}
 	@${MAKE} -C ${MLX_DIR}
+	@${MAKE} -C ${LIBFT_DIR}
 	@make ${NAME}
 
-bonus:
-	@${MAKE} -C ${LIBFT_DIR}
+bonus: ${MLX_DIR}
 	@${MAKE} -C ${MLX_DIR}
+	@${MAKE} -C ${LIBFT_DIR}
 	@make ${NAME_BONUS}
+
+${MLX_DIR}:
+	git clone https://github.com/42Paris/minilibx-linux.git ${MLX_DIR}
 
 ${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
 	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
@@ -65,7 +68,7 @@ clean:
 
 fclean: clean
 	${MAKE} -C ${LIBFT_DIR} fclean
-	${RM} ${NAME} ${NAME_BONUS}
+	${RM} ${NAME} ${NAME_BONUS} ${MLX_DIR}
 
 re: fclean all
 
