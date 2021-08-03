@@ -290,7 +290,7 @@ void	set_putstr(t_data *data)
 
 void	set_mlx_data(t_data *data)
 {
-//	set_enemy_posit(data);
+	set_enemy_posit(data);
 	data->mlx = is_null(mlx_init(), "mlx_init", data);
 	set_empty_img(data);
 	set_wall_img(data);
@@ -310,33 +310,6 @@ void	set_mlx_data(t_data *data)
 		"so leng aaaaaai!"), \
 		"mlx_new_window", data);
 }
-
-/*
-void	print_info(t_data *data)
-{
-	char *player_move;
-	char *putstr;
-
-//	ft_putstr_fd("\033[2J", 1);
-//	ft_putstr_fd("number of moves : ", 1);
-//	ft_putnbr_fd(data->move_cnt, 1);
-//	ft_putstr_fd("\ncollectible remaining : ", 1);
-//	ft_putnbr_fd(data->type_cnt[COLL], 1);
-//	ft_putstr_fd("\n", 1);
-	player_move = ft_itoa(data->move_cnt);
-	if (!player_move)
-		ft_exit(data);
-	putstr = ft_strjoin("number of moves : ", player_move);
-	if (!putstr)
-	{
-		free(player_move);
-		ft_exit(data);
-	}
-	mlx_string_put(data->mlx, data->mlx_win, 100, 100, 0x00FF0000, putstr);
-	free(player_move);
-	free(putstr);
-}
-*/
 
 void	put_map(t_data *data)
 {
@@ -358,7 +331,6 @@ void	put_map(t_data *data)
 			x * data->square_len[X], y * data->square_len[Y]);
 		}
 	}
-//	print_info(data);
 	mlx_put_image_to_window(data->mlx, data->mlx_win, \
 		data->putstr_img , 0, data->square_num[Y] * data->square_len[Y]);
 	mlx_string_put(data->mlx, data->mlx_win, \
@@ -497,7 +469,7 @@ void	run_animation(t_data *data)
 
 int	loop_func(t_data *data)
 {
-//	move_enemy(data);
+	move_enemy(data);
 	run_animation(data);
 	put_map(data);
 	return (0);
@@ -674,7 +646,6 @@ int	main(int ac, char **av)
 	mlx_key_hook(data.mlx_win, key_hook, &data);
 	mlx_hook(data.mlx_win, 17, 1L << 17, click_red_cross, &data);
 	mlx_loop_hook(data.mlx, loop_func, &data);
-//	print_info(data);
 	mlx_loop(data.mlx);
 	return (0);
 }

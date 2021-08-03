@@ -24,7 +24,6 @@ enum	e_square
 	COLL,
 	EXIT,
 	PLAYER,
-	ENEMY,
 	SQUARE_NUM
 };
 
@@ -73,10 +72,6 @@ typedef struct	s_data {
 	int		type_cnt[SQUARE_NUM];
 	int		posit[SQUARE_NUM][COOR_NUM];
 	int		move_cnt;
-	char	*putstr;
-	void	*putstr_img;
-	int		putstr_img_len[COOR_NUM];
-	int		enemy_moving;
 	int		**map;
 }				t_data;
 
