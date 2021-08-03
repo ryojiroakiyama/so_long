@@ -12,6 +12,7 @@ int	ft_free(char **f)
 	return (-1);
 }
 
+/*
 int	by_stock(char **stock, char **line)
 {
 	ssize_t	nl;
@@ -27,6 +28,36 @@ int	by_stock(char **stock, char **line)
 			return (ft_free(stock));
 		tmp = *stock;
 		*stock = ft_subnstr(*stock, nl + 1, gnl_strlen(*stock) - 1 - nl);
+		free(tmp);
+		if (!(*stock))
+			return (ft_free(line));
+		return (1);
+	}
+	*line = *stock;
+	*stock = NULL;
+	return (42);
+}
+*/
+
+int	by_stock(char **stock, char **line)
+{
+	ssize_t	nl;
+	char	*tmp;
+	size_t	stock_len;
+
+	if (!(*stock))
+		return (-42);
+	nl = gnl_strchr(*stock, '\n');
+	if (nl != -1)
+	{
+		*line = ft_subnstr(*stock, 0, nl);
+		if (!(*line))
+			return (ft_free(stock));
+		stock_len = gnl_strlen(*stock) - 1 - nl;
+		if (stock_len == 0)
+			return (-1 * ft_free(stock));
+		tmp = *stock;
+		*stock = ft_subnstr(*stock, nl + 1, stock_len);
 		free(tmp);
 		if (!(*stock))
 			return (ft_free(line));

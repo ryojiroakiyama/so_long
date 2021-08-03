@@ -31,7 +31,7 @@ ${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
 	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
 
 val:
-	valgrind --leak-check=full -s ./${NAME} ${map}
+	valgrind --leak-check=full -s --show-leak-kinds=all ./${NAME} ${map}
 
 clean:
 	${MAKE} -C ${LIBFT_DIR} clean

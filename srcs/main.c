@@ -68,20 +68,6 @@ void	init_array_zero(int *array, int size)
 		array[i] = 0;
 }
 
-void	init_posit(t_data *data)
-{
-	int	square;
-	int	coor;
-
-	square = -1;
-	while (++square < SQUARE_NUM)
-	{
-		coor = -1;
-		while (++coor < COOR_NUM)
-			data->posit[square][coor] = 0;
-	}
-}
-
 void	init_img(t_data *data)
 {
 	int	square;
@@ -103,6 +89,8 @@ void	init_img(t_data *data)
 
 void	init_data(t_data *data)
 {
+	int	square;
+
 	data->mlx = NULL;
 	data->mlx_win = NULL;
 	init_img(data);
@@ -111,9 +99,12 @@ void	init_data(t_data *data)
 	init_array_zero(data->square_len, SQUARE_NUM);
 	init_array_zero(data->square_num, COOR_NUM);
 	init_array_zero(data->type_cnt, SQUARE_NUM);
-	init_posit(data);
+	square = -1;
+	while (++square < SQUARE_NUM)
+		init_array_zero(data->posit[square], COOR_NUM);
 	data->move_cnt = 0;
 	data->print_string = NULL;
+	init_array_zero(data->print_space, COOR_NUM);
 	data->enemy_moving = 0;
 	data->map = NULL;
 }
@@ -288,7 +279,7 @@ void	set_print_string(t_data *data)
 		ft_exit(SYSERROR, "ft_itoa", data);
 	free(data->print_string);
 	data->print_string = NULL;
-	data->print_string = ft_strjoin("number of moves : ", player_move);
+	data->print_string = ft_strjoin("move:", player_move);
 	free(player_move);
 	if (!data->print_string)
 		ft_exit(SYSERROR, "ft_strjoin", data);
@@ -296,6 +287,10 @@ void	set_print_string(t_data *data)
 
 void	set_mlx_data(t_data *data)
 {
+	data->print_space[X] = 0;
+	data->print_space[Y] = 15;
+//	set_enemy_posit(data);
+	set_print_string(data);
 	data->mlx = is_null(mlx_init(), "mlx_init", data);
 	set_empty_img(data);
 	set_wall_img(data);
@@ -305,12 +300,10 @@ void	set_mlx_data(t_data *data)
 	set_enemy_img(data);
 	data->mlx_win = is_null(\
 		mlx_new_window(data->mlx, \
-		data->square_num[X] * data->square_len[X], \
-		data->square_num[Y] * data->square_len[Y], \
+		data->square_num[X] * data->square_len[X] + data->print_space[X], \
+		data->square_num[Y] * data->square_len[Y] + data->print_space[Y], \
 		"Hello world!"), \
 		"mlx_new_window", data);
-	set_enemy_posit(data);
-	set_print_string(data);
 }
 
 /*
@@ -339,12 +332,14 @@ void	print_info(t_data *data)
 	free(print_string);
 }
 */
+
 void	put_map(t_data *data)
 {
 	int	x;
 	int	y;
 	int	square;
 
+	mlx_clear_window(data->mlx, data->mlx_win);
 	x = -1;
 	while (++x < data->square_num[X])
 	{
@@ -361,7 +356,8 @@ void	put_map(t_data *data)
 	}
 //	print_info(data);
 	mlx_string_put(data->mlx, data->mlx_win, \
-		100, 100, 0x00FF0000, data->print_string);
+		5, data->square_num[Y] * data->square_len[Y] + data->print_space[Y], \
+		0x00FF0000, data->print_string);
 }
 
 int	which_direction(int *src, int *dst)
@@ -431,21 +427,18 @@ void	move_to_empty(int who, int *next, int direction, t_data *data)
 	}
 }
 
-void	serch_empty(t_data *data)
+int	get_next_direction(int *next, int square, t_data *data)
 {
-	int	next[2];
-
-	if (get_next_posit(data->posit[ENEMY], next, data->enemy_moving, data) \
-			== EMPTY)
-		move_to_empty(ENEMY, next, data->enemy_moving, data);
-	else if (get_next_posit(data->posit[ENEMY], next, UP, data) == EMPTY)
-		move_to_empty(ENEMY, next, UP, data);
-	else if (get_next_posit(data->posit[ENEMY], next, RIGHT, data) == EMPTY)
-		move_to_empty(ENEMY, next, RIGHT, data);
-	else if (get_next_posit(data->posit[ENEMY], next, DOWN, data) == EMPTY)
-		move_to_empty(ENEMY, next, DOWN, data);
-	else if (get_next_posit(data->posit[ENEMY], next, LEFT, data) == EMPTY)
-		move_to_empty(ENEMY, next, LEFT, data);
+	if (get_next_posit(data->posit[ENEMY], next, UP, data) == square)
+		return (UP);
+	else if (get_next_posit(data->posit[ENEMY], next, RIGHT, data) == square)
+		return (RIGHT);
+	else if (get_next_posit(data->posit[ENEMY], next, DOWN, data) == square)
+		return (DOWN);
+	else if (get_next_posit(data->posit[ENEMY], next, LEFT, data) == square)
+		return (LEFT);
+	else
+		return (-1);
 }
 
 void	move_enemy(t_data *data)
@@ -464,8 +457,15 @@ void	move_enemy(t_data *data)
 			ft_exit(NORMAL, NULL, data);
 		else if (square == EMPTY)
 			move_to_empty(ENEMY, next, direction, data);
+		else if (get_next_posit(data->posit[ENEMY], next, \
+			data->enemy_moving, data) == EMPTY)
+			move_to_empty(ENEMY, next, data->enemy_moving, data);
 		else
-			serch_empty(data);
+		{
+			direction = get_next_direction(next, EMPTY, data);
+			if (0 < direction)
+				move_to_empty(ENEMY, next, direction, data);
+		}
 		cnt = 0;
 	}
 }
@@ -491,7 +491,7 @@ void	run_animation(t_data *data)
 
 int	loop_func(t_data *data)
 {
-	move_enemy(data);
+//	move_enemy(data);
 	run_animation(data);
 	put_map(data);
 	return (0);

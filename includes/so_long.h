@@ -74,6 +74,7 @@ typedef struct	s_data {
 	int		posit[SQUARE_NUM][COOR_NUM];
 	int		move_cnt;
 	char	*print_string;
+	int		print_space[COOR_NUM];
 	int		enemy_moving;
 	int		**map;
 }				t_data;
