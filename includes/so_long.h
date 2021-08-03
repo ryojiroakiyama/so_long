@@ -75,4 +75,33 @@ typedef struct	s_data {
 	int		**map;
 }				t_data;
 
+int		main(int ac, char **av);
+void	init_array_zero(int *array, int size);
+void	init_img(t_data *data);
+void	init_data(t_data *data);
+int		read_map(char *map_path, t_data *data);
+void	set_map(char *map_path, t_data *data);
+int		check_map(t_data *data);
+int		is_error(int result, char *s, t_data *data);
+int		is_square(char c);
+int		**malloc_2d_array(int size1, int size2);
+void	*is_null(void *result, char *s, t_data *data);
+void	set_mlx_data(t_data *data);
+void	set_empty_img(t_data *data);
+void	set_wall_img(t_data *data);
+void	set_coll_img(t_data *data);
+void	set_exit_img(t_data *data);
+void	set_player_img(t_data *data);
+void	print_info(t_data *data);
+int		get_next_posit(int *now, int *next, int direction, t_data *data);
+void	move_to_empty(int who, int *next, t_data *data);
+int		key_hook(int keycode, t_data *data);
+int		click_red_cross(t_data *data);
+void	put_map(t_data *data);
+void	run_animation(t_data *data);
+int		loop_func(t_data *data);
+void	free_2d_array(int **array, int until);
+void	destroy_all_images(t_data *data);
+int		ft_exit(int status, char *s, t_data *data);
+
 #endif

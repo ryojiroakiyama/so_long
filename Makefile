@@ -2,7 +2,15 @@ NAME = so_long
 
 NAME_BONUS = so_long_bonus
 
-SRCS = ./srcs/main.c ./srcs/get_next_line.c ./srcs/get_next_line_utils.c
+SRCS_DIR = ./srcs/
+
+SRCS_NAME = main.c initialization.c \
+			get_map.c get_map_utils.c \
+			set_mlx_data.c set_mlx_image.c \
+			event_occurrence.c loop.c exit.c \
+			get_next_line.c get_next_line_utils.c
+
+SRCS = ${addprefix ${SRCS_DIR}, ${SRCS_NAME}}
 
 SRCS_BONUS = ./srcs_bonus/main_bonus.c ./srcs_bonus/get_next_line_bonus.c ./srcs_bonus/get_next_line_utils_bonus.c
 
