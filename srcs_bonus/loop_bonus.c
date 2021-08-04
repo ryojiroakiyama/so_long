@@ -77,7 +77,8 @@ void	put_map(t_data *data)
 
 int	loop_func(t_data *data)
 {
-	move_enemy(data);
+	if (data->type_cnt[ENEMY])
+		move_enemy(data);
 	run_animation(data);
 	put_map(data);
 	return (0);

@@ -16,6 +16,7 @@ void	set_enemy_posit(t_data *data)
 				data->posit[ENEMY][X] = x;
 				data->posit[ENEMY][Y] = y;
 				data->map[x][y] = ENEMY;
+				data->type_cnt[ENEMY]++;
 				return ;
 			}
 		}
