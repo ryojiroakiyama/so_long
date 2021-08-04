@@ -39,31 +39,31 @@ CFLAGS = -Wall -Wextra -Werror -I ${MLX_DIR} -I ${HEADER} -I ${LIBFT_DIR}
 
 RM = rm -rf
 
-all: ${MLX_DIR}
-	@${MAKE} -C ${MLX_DIR}
-	@${MAKE} -C ${LIBFT_DIR}
-	@make ${NAME}
+all: ${NAME}
 
-bonus: ${MLX_DIR}
+bonus: ${NAME_BONUS}
+
+${NAME}: ${MLX_DIR} ${OBJS} ${HEADER} ${LIBFT_DIR}
 	@${MAKE} -C ${MLX_DIR}
 	@${MAKE} -C ${LIBFT_DIR}
-	@make ${NAME_BONUS}
+	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
+
+${NAME_BONUS}: ${MLX_DIR} ${OBJS_BONUS} ${HEADER} ${LIBFT_DIR}
+	@${MAKE} -C ${MLX_DIR}
+	@${MAKE} -C ${LIBFT_DIR}
+	${CC} ${C_FLAGS} -o ${NAME_BONUS} ${OBJS_BONUS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
 
 ${MLX_DIR}:
 	git clone https://github.com/42Paris/minilibx-linux.git ${MLX_DIR}
 
-${NAME}: ${OBJS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
-	${CC} ${C_FLAGS} -o ${NAME} ${OBJS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
-
-${NAME_BONUS}: ${OBJS_BONUS} ${MLX_DIR} ${HEADER} ${LIBFT_DIR}
-	${CC} ${C_FLAGS} -o ${NAME_BONUS} ${OBJS_BONUS} -L ${MLX_DIR} -lmlx -lXext -lX11 -L ${LIBFT_DIR} -lft
-
 val:
 	valgrind --leak-check=full -s --show-leak-kinds=all ./${NAME} ${map}
 
+val_bonus:
+	valgrind --leak-check=full -s --show-leak-kinds=all ./${NAME_BONUS} ${map}
+
 clean:
 	${MAKE} -C ${LIBFT_DIR} clean
-	${MAKE} -C ${MLX_DIR} clean
 	${RM} ${OBJS} ${OBJS_BONUS}
 
 fclean: clean
@@ -72,4 +72,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all bonus val clean fclean re
+.PHONY: all bonus val val_bonus clean fclean re

@@ -1,21 +1,21 @@
 #ifndef SO_LONG_BONUS_H
 # define SO_LONG_BONUS_H
 
-#include "mlx.h"
+# include "mlx.h"
 # include "libft.h"
 # include "get_next_line_bonus.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <stdio.h>
+# include <stdlib.h>
 
-#define LEFT 97
-#define UP 119
-#define RIGHT 100
-#define DOWN 115
-#define ESC 65307
+# define LEFT 97
+# define UP 119
+# define RIGHT 100
+# define DOWN 115
+# define ESC 65307
 
 enum	e_square
 {
@@ -61,8 +61,7 @@ enum	e_status
 	STATUS_NUM
 };
 
-
-typedef struct	s_data {
+typedef struct s_data {
 	void	*mlx;
 	void	*mlx_win;
 	void	*img[SQUARE_NUM][SIDE_NUM][ACTION_NUM];
