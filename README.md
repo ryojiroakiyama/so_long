@@ -9,4 +9,18 @@ after running make, you can see minilibx-linux directory and so_long file.
 - minilibx-linux dirctory  
 Libraries for using the X server.
 - so_long  
-executable file.
+executable file.  
+
+### Let's get started!!  
+- mandatory part
+```
+./so_long map/valid_map/simple1.ber
+```
+![mandatory](https://user-images.githubusercontent.com/77039327/128588345-b624a1e8-667e-4399-b407-2ad5f2b293fe.gif)
+
+- bonus part  
+```
+make bonus
+./so_long_bonus map/valid_map/simple1.ber
+```
+![bonus](https://user-images.githubusercontent.com/77039327/128588424-8eb6075e-e26d-4797-a8c2-4fa8d264130a.gif)
