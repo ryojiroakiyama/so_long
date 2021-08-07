@@ -1,6 +1,10 @@
 # Description  
 Welcome to Dragon Forest!!  
-this program allows you to play 2D games using the X server.  
+This program allows you to play 2D games using the X server,  
+and respects the following rules:
+- The W, A, S, and D keys will be used to move the main character.
+- Pressing ESC must close the window and quit the program cleanly.
+- Clicking on the red cross on the window’s frame must close the window and quit the program cleanly.
 # Usage  
 git clone this repository.  
 move to repository you cloned.  
